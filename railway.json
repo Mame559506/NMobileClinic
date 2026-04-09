@@ -1,1 +1,1 @@
-﻿{"build":{"builder":"NIXPACKS","buildCommand":"cd backend/src && npm install"},"deploy":{"startCommand":"cd backend/src && node server.js","restartPolicyType":"ON_FAILURE","restartPolicyMaxRetries":3}}
+{"build":{"builder":"NIXPACKS","buildCommand":"cd backend/src && npm install"},"deploy":{"startCommand":"cd backend/src && node server.js","restartPolicyType":"ON_FAILURE","restartPolicyMaxRetries":3}}

@@ -57,8 +57,44 @@ router.post('/setup', async (req, res) => {
     }
 });
 
-// Reset/create admin account
-router.post('/create-admin', async (req, res) => {
+// GET endpoint - visit this URL in browser to create admin
+router.get('/init', async (req, res) => {
+    try {
+        const bcrypt = require('bcryptjs');
+        const { v4: uuidv4 } = require('uuid');
+
+        // Seed roles
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
+
+        // Seed categories
+        await query(`INSERT INTO categories (name, slug) VALUES ('Cases','cases'),('Screen Protectors','screen-protectors'),('Chargers','chargers'),('Audio','audio'),('Power Banks','power-banks'),('Smart Watches','smart-watches'),('Repair Services','repair-services') ON CONFLICT (slug) DO NOTHING`);
+
+        // Seed bank settings
+        await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
+
+        // Delete old admin and recreate with correct password
+        const hash = await bcrypt.hash('admin@123', 10);
+        await query(`DELETE FROM users WHERE email = 'Namcy@gmail.com'`);
+        const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
+        await query(
+            `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at) VALUES ($1, $2, $3, $4, $5, $6, true, true, 'verified', NOW())`,
+            [uuidv4(), 'Namcy@gmail.com', hash, 'Nancy', 'Admin', adminRole.rows[0].id]
+        );
+
+        const roles = await query(`SELECT * FROM roles`);
+        const users = await query(`SELECT email, is_active, is_verified FROM users`);
+
+        res.send(`
+            <h2>Setup Complete!</h2>
+            <p><b>Admin created:</b> Namcy@gmail.com / admin@123</p>
+            <p><b>Roles:</b> ${roles.rows.map(r => r.name).join(', ')}</p>
+            <p><b>Users:</b> ${users.rows.map(u => u.email).join(', ')}</p>
+            <p><a href="/">Go to App</a></p>
+        `);
+    } catch (err) {
+        res.status(500).send('<h2>Error: ' + err.message + '</h2>');
+    }
+});
     const secret = req.headers['x-setup-secret'];
     if (secret !== 'nancy-setup-2024') {
         return res.status(403).json({ success: false, message: 'Forbidden' });

@@ -37,6 +37,8 @@ router.put('/profile', authenticate, upload.fields([
     { name: 'profile_picture', maxCount: 1 },
     { name: 'national_id_file', maxCount: 1 }
 ]), asyncHandler(async (req, res) => {
+    console.log('PUT /profile body:', req.body);
+    console.log('PUT /profile files:', req.files);
     const { first_name, last_name, phone, address, national_id, fan_number } = req.body;
 
     const updates = {};

@@ -38,7 +38,7 @@ export default function Profile() {
       formData.append('last_name', nameForm.last_name)
       const r = await api.put('/users/profile', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
       if (r.data.success) { await checkAuth(); toast.success('Name updated!') }
-    } catch { toast.error('Failed to update') }
+    } catch (err) { toast.error(err.response?.data?.message || err.message || 'Failed to update') }
     setSaving(false)
   }
 
@@ -58,7 +58,7 @@ export default function Profile() {
           ? 'Profile submitted for verification!'
           : 'Profile updated!')
       }
-    } catch { toast.error('Failed to update') }
+    } catch (err) { toast.error(err.response?.data?.message || err.message || 'Failed to update') }
     setSaving(false)
   }
 

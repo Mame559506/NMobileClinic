@@ -8,7 +8,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Setup upload dirs
 const profileDir = path.join(__dirname, '../uploads/profiles');
 const idDir = path.join(__dirname, '../uploads/ids');
 [profileDir, idDir].forEach(d => { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); });
@@ -17,11 +16,12 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, file.fieldname === 'profile_picture' ? profileDir : idDir);
     },
-    filename: (req, file, cb) => cb(null, file.fieldname + '_' + req.user.id + '_' + Date.now() + path.extname(file.originalname))
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '_' + req.user.id + '_' + Date.now() + path.extname(file.originalname));
+    }
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
-// Get profile
 router.get('/profile', authenticate, asyncHandler(async (req, res) => {
     const result = await query(
         'SELECT u.*, r.name as role FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = $1',
@@ -32,13 +32,10 @@ router.get('/profile', authenticate, asyncHandler(async (req, res) => {
     res.json({ success: true, user });
 }));
 
-// Update profile (with optional file uploads)
 router.put('/profile', authenticate, upload.fields([
     { name: 'profile_picture', maxCount: 1 },
     { name: 'national_id_file', maxCount: 1 }
 ]), asyncHandler(async (req, res) => {
-    console.log('PUT /profile body:', req.body);
-    console.log('PUT /profile files:', req.files);
     const { first_name, last_name, phone, address, national_id, fan_number } = req.body;
 
     const updates = {};
@@ -55,7 +52,6 @@ router.put('/profile', authenticate, upload.fields([
         updates.national_id_file = '/uploads/ids/' + req.files.national_id_file[0].filename;
     }
 
-    // Check if profile is complete enough to request verification
     const currentUser = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
     const merged = Object.assign({}, currentUser.rows[0], updates);
     const isComplete = merged.first_name && merged.last_name && merged.phone &&
@@ -68,20 +64,24 @@ router.put('/profile', authenticate, upload.fields([
     const keys = Object.keys(updates);
     if (keys.length === 0) return res.json({ success: true, message: 'Nothing to update' });
 
-    // Build parameterized SET clause: "first_name = $1, last_name = $2, ..."
-    const setClause = keys.map((k, i) => k + ' = $' + (i + 1)).join(', ');
-    const values = Object.values(updates).concat([req.user.id]);
+    const setParts = [];
+    const values = [];
+    keys.forEach(function(k, i) {
+        setParts.push(k + ' = $' + (i + 1));
+        values.push(updates[k]);
+    });
+    values.push(req.user.id);
 
-    const result = await query(
-        'UPDATE users SET ' + setClause + ', updated_at = NOW() WHERE id = $' + values.length + ' RETURNING *',
-        values
-    );
+    const sql = 'UPDATE users SET ' + setParts.join(', ') + ', updated_at = NOW() WHERE id = $' + values.length + ' RETURNING *';
+    console.log('Profile update SQL:', sql);
+    console.log('Profile update values:', values);
+
+    const result = await query(sql, values);
     const user = result.rows[0];
     delete user.password_hash;
     res.json({ success: true, user });
 }));
 
-// Change password
 router.put('/change-password', authenticate, asyncHandler(async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const result = await query('SELECT password_hash FROM users WHERE id = $1', [req.user.id]);

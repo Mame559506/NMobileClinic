@@ -17,6 +17,7 @@ const paymentRoutes = require('./routes/payment.routes');
 const adminRoutes = require('./routes/admin.routes');
 const repairRoutes = require('./routes/repair.routes');
 const technicianRoutes = require('./routes/technician.routes');
+const setupRoutes = require('./routes/setup.routes');
 
 // Import middleware
 const { errorHandler } = require('./middlewares/error.middleware');
@@ -103,6 +104,7 @@ app.get('/api/bank-settings', async (req, res) => {
 });
 app.use('/api/repairs', authenticate, repairRoutes);
 app.use('/api/technician', authenticate, technicianRoutes);
+app.use('/api/setup', setupRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

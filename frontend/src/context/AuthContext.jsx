@@ -86,7 +86,14 @@ export const AuthProvider = ({ children }) => {
         setUser(user)
         
         toast.success('Registration successful!')
-        navigate('/dashboard')
+        // Redirect based on role
+        if (user.role === 'admin' || user.role === 'manager') {
+          navigate('/admin/dashboard')
+        } else if (user.role === 'technician') {
+          navigate('/technician/dashboard')
+        } else {
+          navigate('/dashboard')
+        }
         
         return { success: true }
       }

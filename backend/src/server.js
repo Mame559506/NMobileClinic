@@ -76,7 +76,27 @@ const initDB = async () => {
     } catch (e) {
         console.log('⚠️ Seed skipped:', e.message);
     }
-};
+
+    // Seed admin account
+    try {
+        const bcrypt = require('bcryptjs');
+        const { v4: uuidv4 } = require('uuid');
+        const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
+        if (adminRole.rows.length > 0) {
+            const existing = await query(`SELECT id FROM users WHERE email = 'Namcy@gmail.com'`);
+            if (existing.rows.length === 0) {
+                const hash = await bcrypt.hash('admin@123', 10);
+                await query(
+                    `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at)
+                     VALUES ($1, $2, $3, $4, $5, $6, true, true, 'verified', NOW())`,
+                    [uuidv4(), 'Namcy@gmail.com', hash, 'Nancy', 'Admin', adminRole.rows[0].id]
+                );
+                console.log('✅ Admin account created: Namcy@gmail.com');
+            }
+        }
+    } catch (e) {
+        console.log('⚠️ Admin seed skipped:', e.message);
+    }};
 initDB();
 
 // Initialize Express app

@@ -5,7 +5,7 @@ import { FaMobileAlt } from 'react-icons/fa'
 
 export default function Register() {
   const { register } = useAuth()
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phone: '', address: '' })
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phone: '', address: '', role: 'customer' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -53,6 +53,13 @@ export default function Register() {
           <div className="form-group">
             <label>Address</label>
             <textarea className="form-control" placeholder="Enter your address" rows="2" value={form.address} onChange={set('address')} />
+          </div>
+          <div className="form-group">
+            <label>Register As</label>
+            <select className="form-control" value={form.role} onChange={set('role')}>
+              <option value="customer">Customer</option>
+              <option value="technician">Technician</option>
+            </select>
           </div>
           <button className="btn btn-block" type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create Account'}

@@ -30,7 +30,11 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
         });
     }
 
-    const { email, password, firstName, lastName, phone, address } = req.body;
+    const { email, password, firstName, lastName, phone, address, role } = req.body;
+
+    // Only allow customer or technician self-registration
+    const allowedRoles = ['customer', 'technician'];
+    const selectedRole = allowedRoles.includes(role) ? role : 'customer';
 
     // Check if user exists
     const existingUser = await query(
@@ -49,10 +53,10 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Get customer role ID
+    // Get role ID
     const roleResult = await query(
         'SELECT id FROM roles WHERE name = $1',
-        ['customer']
+        [selectedRole]
     );
 
     if (roleResult.rows.length === 0) {
@@ -74,7 +78,7 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-        { userId, email, role: 'customer' },
+        { userId, email, role: selectedRole },
         process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: '7d' }
     );
@@ -88,7 +92,7 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
             email,
             firstName,
             lastName,
-            role: 'customer'
+            role: selectedRole
         }
     });
 }));

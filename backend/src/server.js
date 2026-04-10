@@ -24,8 +24,20 @@ const { errorHandler } = require('./middlewares/error.middleware');
 const { authenticate } = require('./middlewares/auth.middleware');
 
 // Database connection
-const { connectDB } = require('./config/database');
-connectDB();
+const { connectDB, query } = require('./config/database');
+
+const initDB = async () => {
+    await connectDB();
+    try {
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
+        await query(`INSERT INTO categories (name, slug) VALUES ('Cases','cases'),('Screen Protectors','screen-protectors'),('Chargers','chargers'),('Audio','audio'),('Power Banks','power-banks'),('Smart Watches','smart-watches'),('Repair Services','repair-services') ON CONFLICT (slug) DO NOTHING`);
+        await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
+        console.log('✅ Database seeded successfully');
+    } catch (e) {
+        console.log('⚠️ Seed skipped:', e.message);
+    }
+};
+initDB();
 
 // Initialize Express app
 const app = express();

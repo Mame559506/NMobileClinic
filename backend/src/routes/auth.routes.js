@@ -55,6 +55,13 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
         ['customer']
     );
 
+    if (roleResult.rows.length === 0) {
+        return res.status(500).json({
+            success: false,
+            message: 'System configuration error. Please contact support.'
+        });
+    }
+
     const userId = uuidv4();
     
     // Create user

@@ -62,7 +62,7 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
     if (roleResult.rows.length === 0) {
         return res.status(500).json({
             success: false,
-            message: 'System configuration error. Please contact support.'
+            message: 'Role "' + selectedRole + '" not found in database. Please contact support.'
         });
     }
 

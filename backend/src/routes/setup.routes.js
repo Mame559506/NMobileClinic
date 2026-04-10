@@ -67,9 +67,17 @@ router.post('/create-admin', async (req, res) => {
         const bcrypt = require('bcryptjs');
         const { v4: uuidv4 } = require('uuid');
 
-        // Ensure admin role exists
-        await query(`INSERT INTO roles (name) VALUES ('admin') ON CONFLICT (name) DO NOTHING`);
+        // Ensure ALL roles exist first
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
+
+        // Ensure categories exist
+        await query(`INSERT INTO categories (name, slug) VALUES ('Cases','cases'),('Screen Protectors','screen-protectors'),('Chargers','chargers'),('Audio','audio'),('Power Banks','power-banks'),('Smart Watches','smart-watches'),('Repair Services','repair-services') ON CONFLICT (slug) DO NOTHING`);
+
+        // Ensure bank settings exist
+        await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
+
         const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
+        const rolesAll = await query(`SELECT * FROM roles`);
 
         const hash = await bcrypt.hash('admin@123', 10);
 
@@ -81,7 +89,11 @@ router.post('/create-admin', async (req, res) => {
             [uuidv4(), 'Namcy@gmail.com', hash, adminRole.rows[0].id]
         );
 
-        res.json({ success: true, message: 'Admin created. Email: Namcy@gmail.com, Password: admin@123' });
+        res.json({
+            success: true,
+            message: 'Done! Email: Namcy@gmail.com / Password: admin@123',
+            roles: rolesAll.rows
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

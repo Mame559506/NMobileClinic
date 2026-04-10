@@ -117,7 +117,7 @@ export default function Profile() {
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 {profile?.profile_picture ? (
-                  <img src={profile.profile_picture} alt="Profile"
+                  <img src={`http://localhost:5000${profile.profile_picture}`} alt="Profile"
                     style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover' }} />
                 ) : (
                   <div className="user-avatar" style={{ width: 100, height: 100, fontSize: 36, margin: '0 auto' }}>{initials}</div>

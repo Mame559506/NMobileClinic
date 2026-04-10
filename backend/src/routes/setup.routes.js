@@ -57,4 +57,34 @@ router.post('/setup', async (req, res) => {
     }
 });
 
+// Reset/create admin account
+router.post('/create-admin', async (req, res) => {
+    const secret = req.headers['x-setup-secret'];
+    if (secret !== 'nancy-setup-2024') {
+        return res.status(403).json({ success: false, message: 'Forbidden' });
+    }
+    try {
+        const bcrypt = require('bcryptjs');
+        const { v4: uuidv4 } = require('uuid');
+
+        // Ensure admin role exists
+        await query(`INSERT INTO roles (name) VALUES ('admin') ON CONFLICT (name) DO NOTHING`);
+        const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
+
+        const hash = await bcrypt.hash('admin@123', 10);
+
+        // Delete existing and recreate
+        await query(`DELETE FROM users WHERE email = 'Namcy@gmail.com'`);
+        await query(
+            `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at)
+             VALUES ($1, $2, $3, 'Nancy', 'Admin', $4, true, true, 'verified', NOW())`,
+            [uuidv4(), 'Namcy@gmail.com', hash, adminRole.rows[0].id]
+        );
+
+        res.json({ success: true, message: 'Admin created. Email: Namcy@gmail.com, Password: admin@123' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;

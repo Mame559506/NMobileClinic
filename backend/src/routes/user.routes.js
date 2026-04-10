@@ -17,14 +17,14 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, file.fieldname === 'profile_picture' ? profileDir : idDir);
     },
-    filename: (req, file, cb) => cb(null, `${file.fieldname}_${req.user.id}_${Date.now()}${path.extname(file.originalname)}`)
+    filename: (req, file, cb) => cb(null, file.fieldname + '_' + req.user.id + '_' + Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 
 // Get profile
 router.get('/profile', authenticate, asyncHandler(async (req, res) => {
     const result = await query(
-        `SELECT u.*, r.name as role FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = $1`,
+        'SELECT u.*, r.name as role FROM users u JOIN roles r ON u.role_id = r.id WHERE u.id = $1',
         [req.user.id]
     );
     const user = result.rows[0];
@@ -46,12 +46,16 @@ router.put('/profile', authenticate, upload.fields([
     if (address) updates.address = address;
     if (national_id) updates.national_id = national_id;
     if (fan_number) updates.fan_number = fan_number;
-    if (req.files?.profile_picture) updates.profile_picture = `/uploads/profiles/${req.files.profile_picture[0].filename}`;
-    if (req.files?.national_id_file) updates.national_id = req.body.national_id || updates.national_id;
+    if (req.files && req.files.profile_picture) {
+        updates.profile_picture = '/uploads/profiles/' + req.files.profile_picture[0].filename;
+    }
+    if (req.files && req.files.national_id_file) {
+        updates.national_id_file = '/uploads/ids/' + req.files.national_id_file[0].filename;
+    }
 
     // Check if profile is complete enough to request verification
     const currentUser = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
-    const merged = { ...currentUser.rows[0], ...updates };
+    const merged = Object.assign({}, currentUser.rows[0], updates);
     const isComplete = merged.first_name && merged.last_name && merged.phone &&
         merged.profile_picture && (merged.national_id || merged.fan_number);
 
@@ -62,11 +66,12 @@ router.put('/profile', authenticate, upload.fields([
     const keys = Object.keys(updates);
     if (keys.length === 0) return res.json({ success: true, message: 'Nothing to update' });
 
-    const setClause = keys.map((k, i) => `${k} = $${i + 1}`).join(', ');
-    const values = [...Object.values(updates), req.user.id];
+    // Build parameterized SET clause: "first_name = $1, last_name = $2, ..."
+    const setClause = keys.map((k, i) => k + ' = $' + (i + 1)).join(', ');
+    const values = Object.values(updates).concat([req.user.id]);
 
     const result = await query(
-        `UPDATE users SET ${setClause}, updated_at = NOW() WHERE id = $${values.length} RETURNING *`,
+        'UPDATE users SET ' + setClause + ', updated_at = NOW() WHERE id = $' + values.length + ' RETURNING *',
         values
     );
     const user = result.rows[0];

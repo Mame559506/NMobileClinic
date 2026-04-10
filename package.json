@@ -1,0 +1,11 @@
+{
+  "name": "nancymobile",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd backend/src && npm install",
+    "start": "cd backend/src && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

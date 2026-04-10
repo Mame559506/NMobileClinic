@@ -59,9 +59,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production'
-        ? (process.env.FRONTEND_URL || true)
-        : (process.env.FRONTEND_URL || 'http://localhost:3000'),
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
     optionsSuccessStatus: 200
 };
@@ -73,12 +71,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve frontend build in production
-if (process.env.NODE_ENV === 'production') {
-    const frontendBuild = path.join(__dirname, '../../frontend/dist');
-    app.use(express.static(frontendBuild));
-}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -131,9 +123,6 @@ app.use(errorHandler);
 
 // 404 handler
 app.use('*', (req, res) => {
-    if (process.env.NODE_ENV === 'production' && !req.originalUrl.startsWith('/api')) {
-        return res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
-    }
     res.status(404).json({
         success: false,
         message: 'Endpoint not found'

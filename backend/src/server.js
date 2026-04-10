@@ -83,16 +83,15 @@ const initDB = async () => {
         const { v4: uuidv4 } = require('uuid');
         const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
         if (adminRole.rows.length > 0) {
-            const existing = await query(`SELECT id FROM users WHERE email = 'Namcy@gmail.com'`);
-            if (existing.rows.length === 0) {
-                const hash = await bcrypt.hash('admin@123', 10);
-                await query(
-                    `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at)
-                     VALUES ($1, $2, $3, $4, $5, $6, true, true, 'verified', NOW())`,
-                    [uuidv4(), 'Namcy@gmail.com', hash, 'Nancy', 'Admin', adminRole.rows[0].id]
-                );
-                console.log('✅ Admin account created: Namcy@gmail.com');
-            }
+            const hash = await bcrypt.hash('admin@123', 10);
+            // Delete and recreate to ensure correct password
+            await query(`DELETE FROM users WHERE email = 'Namcy@gmail.com'`);
+            await query(
+                `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, true, true, 'verified', NOW())`,
+                [uuidv4(), 'Namcy@gmail.com', hash, 'Nancy', 'Admin', adminRole.rows[0].id]
+            );
+            console.log('✅ Admin account ready: Namcy@gmail.com');
         }
     } catch (e) {
         console.log('⚠️ Admin seed skipped:', e.message);
@@ -119,7 +118,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || true,
     credentials: true,
     optionsSuccessStatus: 200
 };
@@ -131,6 +130,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Serve built frontend
+const frontendDist = path.join(__dirname, '../../frontend/dist');
+if (require('fs').existsSync(frontendDist)) {
+    app.use(express.static(frontendDist));
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -181,12 +186,15 @@ app.use('/api/setup', setupRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-// 404 handler
+// 404 handler - serve frontend for non-API routes (SPA)
 app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Endpoint not found'
-    });
+    if (!req.originalUrl.startsWith('/api')) {
+        const indexPath = path.join(__dirname, '../../frontend/dist/index.html');
+        if (require('fs').existsSync(indexPath)) {
+            return res.sendFile(indexPath);
+        }
+    }
+    res.status(404).json({ success: false, message: 'Endpoint not found' });
 });
 
 // Start server

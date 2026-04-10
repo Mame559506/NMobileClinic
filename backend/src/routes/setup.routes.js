@@ -31,11 +31,27 @@ router.post('/setup', async (req, res) => {
         // Seed bank settings
         await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
 
-        // Seed products
-        await query(`INSERT INTO products (name, description, price, stock_quantity, category_id, image_url, is_active) VALUES ('iPhone 14 Pro Case','Premium protective case',29.99,45,(SELECT id FROM categories WHERE slug='cases'),'mobile',true),('Screen Protector','Tempered glass screen protector',19.99,78,(SELECT id FROM categories WHERE slug='screen-protectors'),'shield-alt',true),('Fast Wireless Charger','15W fast wireless charger',39.99,32,(SELECT id FROM categories WHERE slug='chargers'),'bolt',true),('Noise Cancelling Earbuds','Wireless earbuds with ANC',89.99,56,(SELECT id FROM categories WHERE slug='audio'),'headphones',true),('Power Bank 20000mAh','High capacity power bank',49.99,12,(SELECT id FROM categories WHERE slug='power-banks'),'battery-full',true),('Apple Watch Series 8','Advanced smartwatch',399.99,8,(SELECT id FROM categories WHERE slug='smart-watches'),'smartwatch',true),('Screen Repair Service','Professional screen replacement',99.99,999,(SELECT id FROM categories WHERE slug='repair-services'),'tools',true) ON CONFLICT DO NOTHING`);
+        // Safe column migrations
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS address TEXT`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_status VARCHAR(50) DEFAULT 'unverified'`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS national_id VARCHAR(100)`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS fan_number VARCHAR(100)`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture VARCHAR(255)`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS national_id_file VARCHAR(255)`);
+        await query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`);
+        await query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(255)`);
+        await query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS receipt_url VARCHAR(255)`);
+        await query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP`);
+        await query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`);
+        await query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50)`);
+        await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS assigned_to UUID`);
+        await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS notes TEXT`);
+        await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP`);
 
-        const rolesResult = await query('SELECT * FROM roles');
-        res.json({ success: true, message: 'Database setup complete', roles: rolesResult.rows });
+        const colsResult = await query(`SELECT column_name FROM information_schema.columns WHERE table_name = 'users' ORDER BY ordinal_position`);
+        res.json({ success: true, message: 'Database setup and migrations complete', user_columns: colsResult.rows.map(r => r.column_name) });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

@@ -9,14 +9,14 @@ const { v4: uuidv4 } = require('uuid');
 
 // Validation middleware
 const validateRegister = [
-    body('email').isEmail().normalizeEmail(),
+    body('email').isEmail(),
     body('password').isLength({ min: 8 }),
     body('firstName').notEmpty().trim(),
     body('lastName').notEmpty().trim()
 ];
 
 const validateLogin = [
-    body('email').isEmail().normalizeEmail(),
+    body('email').isEmail(),
     body('password').notEmpty()
 ];
 
@@ -69,12 +69,21 @@ router.post('/register', validateRegister, asyncHandler(async (req, res) => {
     const userId = uuidv4();
     
     // Create user
-    await query(
-        `INSERT INTO users (id, email, password_hash, first_name, last_name, 
-         phone, address, role_id, created_at) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
-        [userId, email, passwordHash, firstName, lastName, phone, address, roleResult.rows[0].id]
-    );
+    try {
+        await query(
+            `INSERT INTO users (id, email, password_hash, first_name, last_name, phone, address, role_id, created_at) 
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())`,
+            [userId, email, passwordHash, firstName, lastName, phone || null, address || null, roleResult.rows[0].id]
+        );
+    } catch (insertErr) {
+        // Fallback: insert without phone/address if columns don't exist
+        console.error('Insert error:', insertErr.message);
+        await query(
+            `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, created_at) 
+             VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+            [userId, email, passwordHash, firstName, lastName, roleResult.rows[0].id]
+        );
+    }
 
     // Generate JWT token
     const token = jwt.sign(
@@ -109,12 +118,12 @@ router.post('/login', validateLogin, asyncHandler(async (req, res) => {
 
     const { email, password } = req.body;
 
-    // Find user
+    // Find user (case-insensitive email)
     const userResult = await query(
         `SELECT u.*, r.name as role 
          FROM users u 
          JOIN roles r ON u.role_id = r.id 
-         WHERE u.email = $1 AND u.is_active = true`,
+         WHERE LOWER(u.email) = LOWER($1) AND u.is_active = true`,
         [email]
     );
 

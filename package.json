@@ -1,6 +1,6 @@
 {
   "name": "nancymobile",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scripts": {
     "build": "npm install --prefix backend/src && npm install --prefix frontend && npm run build --prefix frontend",
     "start": "node backend/src/server.js"

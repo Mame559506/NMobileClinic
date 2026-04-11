@@ -146,7 +146,7 @@ app.get('/api/health', (req, res) => {
         status: 'OK', 
         timestamp: new Date().toISOString(),
         service: 'Nancy Mobile API',
-        version: '1.0.3'
+        version: '1.0.7'
     });
 });
 

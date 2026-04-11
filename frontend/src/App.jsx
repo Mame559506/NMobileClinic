@@ -31,6 +31,7 @@ import Inventory from './pages/admin/Inventory'
 import Reports from './pages/admin/Reports'
 import ManageRepairs from './pages/admin/ManageRepairs'
 import BankSettings from './pages/admin/BankSettings'
+import AdminProfile from './pages/admin/Profile'
 import TechDashboard from './pages/technician/Dashboard'
 import TechRepairs from './pages/technician/Repairs'
 
@@ -117,6 +118,7 @@ function App() {
       <Route path="/admin/reports" element={<AdminRoute><Reports /></AdminRoute>} />
       <Route path="/admin/repairs" element={<AdminRoute><ManageRepairs /></AdminRoute>} />
       <Route path="/admin/bank-settings" element={<AdminRoute><BankSettings /></AdminRoute>} />
+      <Route path="/admin/profile" element={<AdminRoute><AdminProfile /></AdminRoute>} />
 
       {/* Technician */}
       <Route path="/technician/dashboard" element={<TechRoute><TechDashboard /></TechRoute>} />

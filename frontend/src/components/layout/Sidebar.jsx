@@ -32,6 +32,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/admin/reports', icon: <FaChartBar />, label: 'Reports & Analytics' },
     { to: '/admin/repairs', icon: <FaTools />, label: 'Repair Requests' },
     { to: '/admin/bank-settings', icon: <FaUniversity />, label: 'Bank Settings' },
+    { to: '/admin/profile', icon: <FaUser />, label: 'My Profile' },
   ]
 
   const techLinks = [

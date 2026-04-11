@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FaMoneyCheckAlt, FaCheck, FaTimes, FaDownload, FaEye, FaFileImage } from 'react-icons/fa'
+import { FaMoneyCheckAlt, FaCheck, FaTimes, FaDownload, FaEye, FaFileImage, FaTrash } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -21,6 +21,15 @@ export default function PaymentVerification() {
       setPayments(prev => prev.map(p => p.id === id ? { ...p, status } : p))
       toast.success('Payment ' + (status === 'completed' ? 'approved' : 'rejected'))
     } catch { toast.error('Failed to update payment') }
+  }
+
+  const deletePayment = async (id) => {
+    if (!window.confirm('Delete this payment record? This cannot be undone.')) return
+    try {
+      await api.delete('/admin/payments/' + id)
+      setPayments(prev => prev.filter(p => p.id !== id))
+      toast.success('Payment deleted')
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to delete') }
   }
 
   const downloadReceipt = (receiptUrl, paymentId) => {
@@ -125,9 +134,21 @@ export default function PaymentVerification() {
                           title="Reject" onClick={() => verify(p.id, 'rejected')}>
                           <FaTimes />
                         </button>
+                        <button className="btn btn-danger" style={{ padding: '5px 10px', fontSize: 12 }}
+                          title="Delete" onClick={() => deletePayment(p.id)}>
+                          <FaTrash />
+                        </button>
                       </div>
                     )}
-                    {p.status !== 'pending' && <span style={{ color: 'var(--gray)', fontSize: 12 }}>—</span>}
+                    {p.status !== 'pending' && (
+                      <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                        <span style={{ color: 'var(--gray)', fontSize: 12 }}>—</span>
+                        <button className="btn btn-danger" style={{ padding: '5px 10px', fontSize: 12 }}
+                          title="Delete" onClick={() => deletePayment(p.id)}>
+                          <FaTrash />
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

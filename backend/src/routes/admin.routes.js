@@ -143,6 +143,13 @@ router.get('/public/bank-settings', asyncHandler(async (req, res) => {
     res.json({ success: true, banks: result.rows });
 }));
 
+// Delete payment (admin only)
+router.delete('/payments/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
+    const result = await query('DELETE FROM payments WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Payment not found' });
+    res.json({ success: true, message: 'Payment deleted' });
+}));
+
 // Delete user (admin only)
 router.delete('/users/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
     const { id } = req.params;

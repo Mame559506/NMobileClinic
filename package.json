@@ -2,7 +2,7 @@
   "name": "nancymobile",
   "version": "1.0.7",
   "scripts": {
-    "build": "npm install --prefix backend/src && npm install --prefix frontend && npm run build --prefix frontend",
+    "build": "npm install --prefix backend/src",
     "start": "node backend/src/server.js"
   },
   "engines": {

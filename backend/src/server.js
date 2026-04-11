@@ -65,6 +65,9 @@ const initDB = async () => {
         await query(`ALTER TABLE products ALTER COLUMN image_url TYPE TEXT`);
         // Allow large base64 receipts in payments
         await query(`ALTER TABLE payments ALTER COLUMN receipt_url TYPE TEXT`);
+        // Allow large base64 profile pictures
+        await query(`ALTER TABLE users ALTER COLUMN profile_picture TYPE TEXT`);
+        await query(`ALTER TABLE users ALTER COLUMN national_id_file TYPE TEXT`);
 
         console.log('✅ Migrations applied');    } catch (e) {
         console.log('⚠️ Migration error:', e.message);

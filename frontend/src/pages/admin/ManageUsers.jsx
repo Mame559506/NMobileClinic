@@ -77,7 +77,7 @@ export default function ManageUsers() {
             </div>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               {viewing.profile_picture ? (
-                <img src={`http://localhost:5000${viewing.profile_picture}`} alt="Profile"
+                <img src={viewing.profile_picture} alt="Profile"
                   style={{ width: 120, height: 120, borderRadius: '50%', objectFit: 'cover', marginBottom: 10 }} />
               ) : (
                 <div className="user-avatar" style={{ width: 120, height: 120, fontSize: 40, margin: '0 auto 10px' }}>
@@ -105,6 +105,13 @@ export default function ManageUsers() {
                 ))}
               </tbody>
             </table>
+            {viewing.national_id_file && (
+              <div style={{ marginBottom: 15 }}>
+                <p style={{ fontWeight: 500, marginBottom: 6 }}>ID Document:</p>
+                <img src={viewing.national_id_file} alt="ID Document"
+                  style={{ maxWidth: '100%', borderRadius: 6, border: '1px solid #eee' }} />
+              </div>
+            )}
             {viewing.verification_status === 'pending' && (
               <div style={{ display: 'flex', gap: 10 }}>
                 <button className="btn btn-success" style={{ flex: 1 }} onClick={() => verifyUser(viewing.id, 'verified')}>
@@ -144,7 +151,12 @@ export default function ManageUsers() {
               ) : filtered.map(u => (
                 <tr key={u.id}>
                   <td>
-                    {editing === u.id ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {u.profile_picture
+                        ? <img src={u.profile_picture} alt="" style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                        : <div className="user-avatar" style={{ width: 32, height: 32, fontSize: 12 }}>{u.first_name?.[0]}{u.last_name?.[0]}</div>
+                      }
+                      {editing === u.id ? (
                       <div style={{ display: 'flex', gap: 6 }}>
                         <input className="form-control" style={{ padding: '4px 8px', fontSize: 13, width: 90 }}
                           value={editForm.first_name} onChange={e => setEditForm({ ...editForm, first_name: e.target.value })} />
@@ -152,6 +164,7 @@ export default function ManageUsers() {
                           value={editForm.last_name} onChange={e => setEditForm({ ...editForm, last_name: e.target.value })} />
                       </div>
                     ) : `${u.first_name} ${u.last_name}`}
+                    </div>
                   </td>
                   <td>{u.email}</td>
                   <td>

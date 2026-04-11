@@ -1,26 +1,18 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 const { authenticate } = require('../middlewares/auth.middleware');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-const profileDir = path.join(__dirname, '../uploads/profiles');
-const idDir = path.join(__dirname, '../uploads/ids');
-[profileDir, idDir].forEach(d => { if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true }); });
+// Memory storage - store as base64 in DB (survives Railway redeploys)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, file.fieldname === 'profile_picture' ? profileDir : idDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '_' + req.user.id + '_' + Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+function toBase64(file) {
+    if (!file) return null;
+    return 'data:' + file.mimetype + ';base64,' + file.buffer.toString('base64');
+}
 
 router.get('/profile', authenticate, asyncHandler(async (req, res) => {
     const result = await query(
@@ -46,10 +38,10 @@ router.put('/profile', authenticate, upload.fields([
     if (national_id) updates.national_id = national_id;
     if (fan_number) updates.fan_number = fan_number;
     if (req.files && req.files.profile_picture) {
-        updates.profile_picture = '/uploads/profiles/' + req.files.profile_picture[0].filename;
+        updates.profile_picture = toBase64(req.files.profile_picture[0]);
     }
     if (req.files && req.files.national_id_file) {
-        updates.national_id_file = '/uploads/ids/' + req.files.national_id_file[0].filename;
+        updates.national_id_file = toBase64(req.files.national_id_file[0]);
     }
 
     const currentUser = await query('SELECT * FROM users WHERE id = $1', [req.user.id]);
@@ -64,17 +56,9 @@ router.put('/profile', authenticate, upload.fields([
     const keys = Object.keys(updates);
     if (keys.length === 0) return res.json({ success: true, message: 'Nothing to update' });
 
-    const setParts = [];
-    const values = [];
-    keys.forEach(function(k, i) {
-        setParts.push(k + ' = $' + (i + 1));
-        values.push(updates[k]);
-    });
-    values.push(req.user.id);
-
+    const setParts = keys.map((k, i) => k + ' = $' + (i + 1));
+    const values = Object.values(updates).concat([req.user.id]);
     const sql = 'UPDATE users SET ' + setParts.join(', ') + ', updated_at = NOW() WHERE id = $' + values.length + ' RETURNING *';
-    console.log('Profile update SQL:', sql);
-    console.log('Profile update values:', values);
 
     const result = await query(sql, values);
     const user = result.rows[0];

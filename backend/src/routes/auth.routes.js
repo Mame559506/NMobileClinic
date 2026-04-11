@@ -217,7 +217,7 @@ router.get('/me', asyncHandler(async (req, res) => {
                 role: user.role,
                 phone: user.phone,
                 address: user.address,
-                profileImage: user.profile_picture || user.profile_image,
+                profileImage: user.profile_picture,
                 is_verified: user.is_verified,
                 verification_status: user.verification_status
             }

@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
-import { FaUsers, FaSearch, FaEdit, FaCheckCircle, FaTimesCircle, FaEye, FaTrash } from 'react-icons/fa'
+import { FaUsers, FaSearch, FaEdit, FaCheckCircle, FaTimesCircle, FaEye, FaTrash, FaPlus, FaTimes } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
+
+const ROLES = ['customer', 'technician', 'admin', 'manager']
+const EMPTY_USER = { first_name: '', last_name: '', email: '', password: '', role: 'customer' }
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([])
@@ -10,6 +13,9 @@ export default function ManageUsers() {
   const [viewing, setViewing] = useState(null)
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const [showAdd, setShowAdd] = useState(false)
+  const [addForm, setAddForm] = useState(EMPTY_USER)
+  const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -46,9 +52,24 @@ export default function ManageUsers() {
       toast.success('User deleted')
     } catch (err) { toast.error(err.response?.data?.message || 'Failed to delete user') }
   }
+  const addUser = async (e) => {
+    e.preventDefault()
+    setAdding(true)
+    try {
+      const r = await api.post('/admin/users', addForm)
+      if (r.data.success) {
+        toast.success('User created')
+        setShowAdd(false)
+        setAddForm(EMPTY_USER)
+        fetchUsers()
+      }
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to create user') }
+    setAdding(false)
+  }
+
   const startEdit = (user) => {
     setEditing(user.id)
-    setEditForm({ first_name: user.first_name, last_name: user.last_name, phone: user.phone, address: user.address })
+    setEditForm({ first_name: user.first_name, last_name: user.last_name, phone: user.phone, address: user.address, role: user.role })
   }
 
   const saveEdit = async (id) => {
@@ -72,7 +93,57 @@ export default function ManageUsers() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaUsers style={{ marginRight: 8, color: 'var(--primary)' }} />Users Management</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2><FaUsers style={{ marginRight: 8, color: 'var(--primary)' }} />Users Management</h2>
+        <button className="btn" onClick={() => setShowAdd(true)}>
+          <FaPlus style={{ marginRight: 6 }} />Add User
+        </button>
+      </div>
+
+      {/* Add User Modal */}
+      {showAdd && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setShowAdd(false)}>
+          <div className="card" style={{ width: 480, maxHeight: '90vh', overflow: 'auto' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0 }}>Add New User</h3>
+              <button onClick={() => setShowAdd(false)} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--gray)' }}><FaTimes /></button>
+            </div>
+            <form onSubmit={addUser}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="form-group">
+                  <label>First Name *</label>
+                  <input className="form-control" value={addForm.first_name} onChange={e => setAddForm({ ...addForm, first_name: e.target.value })} required />
+                </div>
+                <div className="form-group">
+                  <label>Last Name *</label>
+                  <input className="form-control" value={addForm.last_name} onChange={e => setAddForm({ ...addForm, last_name: e.target.value })} required />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Email *</label>
+                <input className="form-control" type="email" value={addForm.email} onChange={e => setAddForm({ ...addForm, email: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label>Password *</label>
+                <input className="form-control" type="password" value={addForm.password} onChange={e => setAddForm({ ...addForm, password: e.target.value })} required minLength={8} placeholder="Min 8 characters" />
+              </div>
+              <div className="form-group">
+                <label>Role *</label>
+                <select className="form-control" value={addForm.role} onChange={e => setAddForm({ ...addForm, role: e.target.value })}>
+                  {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn btn-block" type="submit" disabled={adding} style={{ flex: 1 }}>
+                  {adding ? 'Creating...' : 'Create User'}
+                </button>
+                <button type="button" className="btn btn-outline" onClick={() => setShowAdd(false)} style={{ flex: 1 }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* User detail modal */}
       {viewing && (
@@ -181,7 +252,14 @@ export default function ManageUsers() {
                         value={editForm.phone} onChange={e => setEditForm({ ...editForm, phone: e.target.value })} />
                     ) : u.phone || '-'}
                   </td>
-                  <td><span className="status-badge status-processing" style={{ textTransform: 'capitalize' }}>{u.role}</span></td>
+                  <td>
+                    {editing === u.id ? (
+                      <select className="form-control" style={{ padding: '4px 8px', fontSize: 13, width: 120 }}
+                        value={editForm.role} onChange={e => setEditForm({ ...editForm, role: e.target.value })}>
+                        {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
+                      </select>
+                    ) : <span className="status-badge status-processing" style={{ textTransform: 'capitalize' }}>{u.role}</span>}
+                  </td>
                   <td>{verifyBadge(u)}</td>
                   <td>
                     <span className={`status-badge ${u.is_active ? 'status-completed' : 'status-cancelled'}`}>

@@ -79,13 +79,39 @@ router.get('/users', authenticate, adminOnly, asyncHandler(async (req, res) => {
     res.json({ success: true, users: result.rows });
 }));
 
-// Update user
+// Admin create user
+router.post('/users', authenticate, adminOnly, asyncHandler(async (req, res) => {
+    const bcrypt = require('bcryptjs');
+    const { v4: uuidv4 } = require('uuid');
+    const { first_name, last_name, email, password, role } = req.body;
+    if (!email || !password || !first_name || !last_name || !role) {
+        return res.status(400).json({ success: false, message: 'All fields required' });
+    }
+    const existing = await query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+    if (existing.rows.length > 0) return res.status(400).json({ success: false, message: 'Email already registered' });
+    const roleResult = await query('SELECT id FROM roles WHERE name = $1', [role]);
+    if (roleResult.rows.length === 0) return res.status(400).json({ success: false, message: 'Invalid role' });
+    const hash = await bcrypt.hash(password, 10);
+    const result = await query(
+        'INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, created_at) VALUES ($1,$2,$3,$4,$5,$6,true,NOW()) RETURNING *',
+        [uuidv4(), email, hash, first_name, last_name, roleResult.rows[0].id]
+    );
+    delete result.rows[0].password_hash;
+    res.status(201).json({ success: true, user: result.rows[0] });
+}));
+
+// Update user (including role change)
 router.put('/users/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
     const { id } = req.params;
     const allowed = ['first_name', 'last_name', 'phone', 'address', 'is_active', 'is_verified', 'verification_status'];
     const updates = {};
     for (const key of allowed) {
         if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+    // Handle role change separately
+    if (req.body.role) {
+        const roleResult = await query('SELECT id FROM roles WHERE name = $1', [req.body.role]);
+        if (roleResult.rows.length > 0) updates.role_id = roleResult.rows[0].id;
     }
     if (Object.keys(updates).length === 0) return res.json({ success: true });
     const keys = Object.keys(updates);

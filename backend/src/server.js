@@ -84,17 +84,21 @@ const initDB = async () => {
     try {
         const bcrypt = require('bcryptjs');
         const { v4: uuidv4 } = require('uuid');
+        const hash = await bcrypt.hash('admin@123', 10);
         const adminRole = await query(`SELECT id FROM roles WHERE name = 'admin'`);
         if (adminRole.rows.length > 0) {
-            const hash = await bcrypt.hash('admin@123', 10);
-            // Delete and recreate to ensure correct password
-            await query(`DELETE FROM users WHERE email = 'Namcy@gmail.com'`);
-            await query(
-                `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, true, true, 'verified', NOW())`,
-                [uuidv4(), 'Namcy@gmail.com', hash, 'Nancy', 'Admin', adminRole.rows[0].id]
-            );
-            console.log('✅ Admin account ready: Namcy@gmail.com');
+            const existing = await query(`SELECT id FROM users WHERE LOWER(email) = 'namcy@gmail.com'`);
+            if (existing.rows.length > 0) {
+                // Update password only - don't delete (foreign key constraints)
+                await query(`UPDATE users SET password_hash = $1, is_active = true, is_verified = true, verification_status = 'verified' WHERE LOWER(email) = 'namcy@gmail.com'`, [hash]);
+                console.log('✅ Admin password updated: Namcy@gmail.com');
+            } else {
+                await query(
+                    `INSERT INTO users (id, email, password_hash, first_name, last_name, role_id, is_active, is_verified, verification_status, created_at) VALUES ($1, $2, $3, 'Nancy', 'Admin', $4, true, true, 'verified', NOW())`,
+                    [uuidv4(), 'Namcy@gmail.com', hash, adminRole.rows[0].id]
+                );
+                console.log('✅ Admin account created: Namcy@gmail.com');
+            }
         }
     } catch (e) {
         console.log('⚠️ Admin seed skipped:', e.message);

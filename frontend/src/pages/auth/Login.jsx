@@ -47,9 +47,6 @@ export default function Login() {
             <p style={{color:'var(--gray)', fontSize: 14}}>
               Don't have an account? <Link to="/register" style={{color:'var(--primary)'}}>Register here</Link>
             </p>
-            <p style={{color:'var(--gray)', fontSize: 13, marginTop: 8}}>
-              Admin: admin@nancymobile.com / admin123
-            </p>
           </div>
         </form>
       </div>

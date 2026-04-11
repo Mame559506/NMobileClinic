@@ -63,6 +63,8 @@ const initDB = async () => {
         await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP`);
         // Allow large base64 images in products
         await query(`ALTER TABLE products ALTER COLUMN image_url TYPE TEXT`);
+        // Allow large base64 receipts in payments
+        await query(`ALTER TABLE payments ALTER COLUMN receipt_url TYPE TEXT`);
 
         console.log('✅ Migrations applied');    } catch (e) {
         console.log('⚠️ Migration error:', e.message);

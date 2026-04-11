@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaTools } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -72,7 +72,7 @@ export default function ManageRepairs() {
                     </select>
                   </td>
                   <td><span className={statusClass(r.status)}>{r.status}</span></td>
-                  <td>{r.estimated_cost ? `GHS ${r.estimated_cost}` : 'TBD'}</td>
+                  <td>{r.estimated_cost ? `ETB ${r.estimated_cost}` : 'TBD'}</td>
                   <td>{new Date(r.created_at).toLocaleDateString()}</td>
                   <td style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                     <select className="form-control" style={{ padding: '5px', fontSize: 12, width: 120 }}
@@ -93,3 +93,4 @@ export default function ManageRepairs() {
     </div>
   )
 }
+

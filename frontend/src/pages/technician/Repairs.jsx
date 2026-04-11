@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaTools, FaHandPointer, FaSave } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -125,8 +125,8 @@ export default function TechRepairs() {
                       {editing === r.id ? (
                         <input type="number" className="form-control" style={{ padding: '5px', fontSize: 13, width: 90 }}
                           value={editForm.estimated_cost} onChange={e => setEditForm({ ...editForm, estimated_cost: e.target.value })}
-                          placeholder="GHS" />
-                      ) : r.estimated_cost ? `GHS ${r.estimated_cost}` : 'TBD'}
+                          placeholder="ETB" />
+                      ) : r.estimated_cost ? `ETB ${r.estimated_cost}` : 'TBD'}
                     </td>
                     <td>
                       {editing === r.id ? (
@@ -141,7 +141,7 @@ export default function TechRepairs() {
                           <button className="btn btn-success" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => saveEdit(r.id)}>
                             <FaSave />
                           </button>
-                          <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => setEditing(null)}>✕</button>
+                          <button className="btn btn-outline" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => setEditing(null)}>âœ•</button>
                         </div>
                       ) : (
                         <button className="btn" style={{ padding: '5px 10px', fontSize: 12 }} onClick={() => startEdit(r)}>Edit</button>
@@ -157,3 +157,4 @@ export default function TechRepairs() {
     </div>
   )
 }
+

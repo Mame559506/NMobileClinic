@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FaClipboardList } from 'react-icons/fa'
 import api from '../../services/api'
@@ -40,7 +40,7 @@ export default function Orders() {
                     <td>{o.order_number || `#${o.id}`}</td>
                     <td>{new Date(o.created_at).toLocaleDateString()}</td>
                     <td>{o.item_count || '-'}</td>
-                    <td>GHS {parseFloat(o.total_amount).toFixed(2)}</td>
+                    <td>ETB {parseFloat(o.total_amount).toFixed(2)}</td>
                     <td><span className={statusClass(o.status)}>{o.status}</span></td>
                     <td><Link to={`/orders/${o.id}`} style={{ color: 'var(--primary)', fontSize: 14 }}>View</Link></td>
                   </tr>
@@ -53,3 +53,4 @@ export default function Orders() {
     </div>
   )
 }
+

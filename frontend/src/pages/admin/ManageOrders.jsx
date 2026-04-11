@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaClipboardCheck } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -48,7 +48,7 @@ export default function ManageOrders() {
                 <tr key={o.id}>
                   <td>{o.order_number || `#${o.id}`}</td>
                   <td>{o.customer_name || o.user_email || '-'}</td>
-                  <td>GHS {parseFloat(o.total_amount).toFixed(2)}</td>
+                  <td>ETB {parseFloat(o.total_amount).toFixed(2)}</td>
                   <td><span className={statusClass(o.status)}>{o.status}</span></td>
                   <td>{new Date(o.created_at).toLocaleDateString()}</td>
                   <td>
@@ -66,3 +66,4 @@ export default function ManageOrders() {
     </div>
   )
 }
+

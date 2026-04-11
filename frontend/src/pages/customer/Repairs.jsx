@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaTools, FaPlus } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -85,7 +85,7 @@ export default function Repairs() {
                     <td>{r.device_type}</td>
                     <td>{r.issue_description}</td>
                     <td><span className={statusClass(r.status)}>{r.status}</span></td>
-                    <td>{r.estimated_cost ? `GHS ${r.estimated_cost}` : 'TBD'}</td>
+                    <td>{r.estimated_cost ? `ETB ${r.estimated_cost}` : 'TBD'}</td>
                     <td>{new Date(r.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
@@ -97,3 +97,4 @@ export default function Repairs() {
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+﻿import { Link, useNavigate } from 'react-router-dom'
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft, FaShoppingCart } from 'react-icons/fa'
 import { useCart } from '../../context/CartContext'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
@@ -39,10 +39,10 @@ export default function Cart() {
           </div>
           {items.map(item => (
             <div className="cart-item" key={item.product_id || item.id}>
-              <div className="cart-item-image">📦</div>
+              <div className="cart-item-image">ðŸ“¦</div>
               <div className="cart-item-details">
                 <div className="cart-item-name">{item.name}</div>
-                <div className="cart-item-price">GHS {parseFloat(item.price).toFixed(2)} each</div>
+                <div className="cart-item-price">ETB {parseFloat(item.price).toFixed(2)} each</div>
                 <div className="cart-item-actions">
                   <div className="quantity-control">
                     <button className="quantity-btn" onClick={() => updateQuantity(item.product_id, item.quantity - 1)} disabled={item.quantity <= 1}>
@@ -60,7 +60,7 @@ export default function Cart() {
                 </div>
               </div>
               <div style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 18, minWidth: 80, textAlign: 'right' }}>
-                GHS {(item.price * item.quantity).toFixed(2)}
+                ETB {(item.price * item.quantity).toFixed(2)}
               </div>
             </div>
           ))}
@@ -75,7 +75,7 @@ export default function Cart() {
           <h3 style={{ marginBottom: 20 }}>Order Summary</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
             <span style={{ color: 'var(--gray)' }}>Subtotal</span>
-            <span>GHS {parseFloat(total).toFixed(2)}</span>
+            <span>ETB {parseFloat(total).toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
             <span style={{ color: 'var(--gray)' }}>Shipping</span>
@@ -83,7 +83,7 @@ export default function Cart() {
           </div>
           <div style={{ borderTop: '1px solid #eee', paddingTop: 15, marginTop: 10, display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 18 }}>
             <span>Total</span>
-            <span style={{ color: 'var(--primary)' }}>GHS {parseFloat(total).toFixed(2)}</span>
+            <span style={{ color: 'var(--primary)' }}>ETB {parseFloat(total).toFixed(2)}</span>
           </div>
           <button className="btn btn-block btn-success" style={{ marginTop: 20 }} onClick={() => navigate('/checkout')}>
             Proceed to Checkout
@@ -93,3 +93,4 @@ export default function Cart() {
     </div>
   )
 }
+

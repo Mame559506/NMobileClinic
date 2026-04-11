@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaChartBar, FaShoppingBag, FaMoneyBillWave, FaUsers } from 'react-icons/fa'
 import api from '../../services/api'
 
@@ -20,7 +20,7 @@ export default function Reports() {
         <>
           <div className="stats-grid">
             {[
-              { label: 'Total Revenue', value: `GHS ${parseFloat(stats?.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'success' },
+              { label: 'Total Revenue', value: `ETB ${parseFloat(stats?.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'success' },
               { label: 'Total Orders', value: stats?.orders || 0, icon: <FaShoppingBag />, color: 'primary' },
               { label: 'Total Users', value: stats?.users || 0, icon: <FaUsers />, color: 'warning' },
               { label: 'Pending Orders', value: stats?.pending_orders || 0, icon: <FaShoppingBag />, color: 'danger' },
@@ -43,3 +43,4 @@ export default function Reports() {
     </div>
   )
 }
+

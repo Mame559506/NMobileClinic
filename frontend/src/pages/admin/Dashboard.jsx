@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { FaUsers, FaShoppingBag, FaMoneyBillWave, FaTools } from 'react-icons/fa'
 import api from '../../services/api'
 
@@ -20,7 +20,7 @@ export default function AdminDashboard() {
   const statCards = [
     { label: 'Total Users', value: stats.users || 0, icon: <FaUsers />, color: 'primary' },
     { label: 'Total Orders', value: stats.orders || 0, icon: <FaShoppingBag />, color: 'success' },
-    { label: 'Revenue (GHS)', value: `${parseFloat(stats.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'warning' },
+    { label: 'Revenue (ETB)', value: `${parseFloat(stats.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'warning' },
     { label: 'Repair Requests', value: stats.repairs || 0, icon: <FaTools />, color: 'danger' },
   ]
 
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
                   <tr key={o.id}>
                     <td>{o.order_number || `#${o.id}`}</td>
                     <td>{o.customer_name || o.user_email || '-'}</td>
-                    <td>GHS {parseFloat(o.total_amount).toFixed(2)}</td>
+                    <td>ETB {parseFloat(o.total_amount).toFixed(2)}</td>
                     <td><span className={statusClass(o.status)}>{o.status}</span></td>
                     <td>{new Date(o.created_at).toLocaleDateString()}</td>
                   </tr>
@@ -71,3 +71,4 @@ export default function AdminDashboard() {
     </div>
   )
 }
+

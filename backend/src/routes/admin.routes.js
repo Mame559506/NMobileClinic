@@ -73,6 +73,15 @@ router.put('/orders/:id/status', authenticate, isAdmin, asyncHandler(async (req,
     res.json({ success: true, order: result.rows[0] });
 }));
 
+// Delete order (admin only)
+router.delete('/orders/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
+    await query('DELETE FROM order_items WHERE order_id = $1', [req.params.id]);
+    await query('DELETE FROM payments WHERE order_id = $1', [req.params.id]);
+    const result = await query('DELETE FROM orders WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.json({ success: true, message: 'Order deleted' });
+}));
+
 // Get all payments
 router.get('/payments', authenticate, isAdmin, asyncHandler(async (req, res) => {
     const result = await query(

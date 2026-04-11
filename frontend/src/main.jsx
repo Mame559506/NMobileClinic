@@ -1,3 +1,4 @@
+// NancyMobile v1.0.7 - built with image upload support
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'

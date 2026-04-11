@@ -28,11 +28,12 @@ router.put('/profile', authenticate, upload.fields([
     { name: 'profile_picture', maxCount: 1 },
     { name: 'national_id_file', maxCount: 1 }
 ]), asyncHandler(async (req, res) => {
-    const { first_name, last_name, phone, address, national_id, fan_number } = req.body;
+    const { first_name, last_name, email, phone, address, national_id, fan_number } = req.body;
 
     const updates = {};
     if (first_name) updates.first_name = first_name;
     if (last_name) updates.last_name = last_name;
+    if (email) updates.email = email;
     if (phone) updates.phone = phone;
     if (address) updates.address = address;
     if (national_id) updates.national_id = national_id;
@@ -77,3 +78,4 @@ router.put('/change-password', authenticate, asyncHandler(async (req, res) => {
 }));
 
 module.exports = router;
+

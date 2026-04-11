@@ -7,7 +7,7 @@ import api from '../../services/api'
 export default function AdminProfile() {
   const { user, checkAuth } = useAuth()
   const [profile, setProfile] = useState(null)
-  const [nameForm, setNameForm] = useState({ first_name: '', last_name: '' })
+  const [nameForm, setNameForm] = useState({ first_name: '', last_name: '', email: '' })
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
   const [profilePic, setProfilePic] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -17,7 +17,7 @@ export default function AdminProfile() {
       if (r.data.success) {
         const u = r.data.user
         setProfile(u)
-        setNameForm({ first_name: u.first_name || '', last_name: u.last_name || '' })
+        setNameForm({ first_name: u.first_name || '', last_name: u.last_name || '', email: u.email || '' })
       }
     }).catch(() => {})
   }, [])
@@ -31,6 +31,7 @@ export default function AdminProfile() {
       const fd = new FormData()
       fd.append('first_name', nameForm.first_name)
       fd.append('last_name', nameForm.last_name)
+      if (nameForm.email) fd.append('email', nameForm.email)
       if (profilePic) fd.append('profile_picture', profilePic)
       const r = await api.put('/users/profile', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       if (r.data.success) {
@@ -91,8 +92,8 @@ export default function AdminProfile() {
             </div>
             <div className="form-group">
               <label>Email</label>
-              <input className="form-control" value={profile?.email || ''} disabled
-                style={{ background: '#f8f9fa', color: 'var(--gray)' }} />
+              <input className="form-control" type="email" value={nameForm.email}
+                onChange={e => setNameForm({ ...nameForm, email: e.target.value })} required />
             </div>
             <div className="form-group">
               <label>Role</label>

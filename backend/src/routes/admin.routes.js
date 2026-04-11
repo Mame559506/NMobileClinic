@@ -26,6 +26,51 @@ router.get('/dashboard/stats', authenticate, isAdmin, asyncHandler(async (req, r
     });
 }));
 
+// Analytics endpoint for charts
+router.get('/analytics', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const [
+        revenueByMonth,
+        ordersByStatus,
+        ordersByMonth,
+        topProducts,
+        usersByRole,
+        repairsByStatus,
+        paymentsByMethod,
+        recentRevenue
+    ] = await Promise.all([
+        // Revenue by month (last 6 months)
+        query(`SELECT TO_CHAR(created_at, 'Mon YYYY') as month, TO_CHAR(created_at, 'YYYY-MM') as month_key, COALESCE(SUM(total_amount), 0) as revenue FROM orders WHERE status != 'cancelled' AND created_at >= NOW() - INTERVAL '6 months' GROUP BY month, month_key ORDER BY month_key`),
+        // Orders by status
+        query(`SELECT status, COUNT(*) as count FROM orders GROUP BY status ORDER BY count DESC`),
+        // Orders by month (last 6 months)
+        query(`SELECT TO_CHAR(created_at, 'Mon YYYY') as month, TO_CHAR(created_at, 'YYYY-MM') as month_key, COUNT(*) as count FROM orders WHERE created_at >= NOW() - INTERVAL '6 months' GROUP BY month, month_key ORDER BY month_key`),
+        // Top 5 products by order quantity
+        query(`SELECT p.name, COALESCE(SUM(oi.quantity), 0) as total_sold FROM products p LEFT JOIN order_items oi ON p.id = oi.product_id GROUP BY p.id, p.name ORDER BY total_sold DESC LIMIT 5`),
+        // Users by role
+        query(`SELECT r.name as role, COUNT(u.id) as count FROM roles r LEFT JOIN users u ON u.role_id = r.id GROUP BY r.name ORDER BY count DESC`),
+        // Repairs by status
+        query(`SELECT status, COUNT(*) as count FROM repairs GROUP BY status ORDER BY count DESC`),
+        // Payments by method
+        query(`SELECT method, COUNT(*) as count, COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'completed' GROUP BY method`),
+        // Daily revenue last 7 days
+        query(`SELECT TO_CHAR(created_at, 'DD Mon') as day, TO_CHAR(created_at, 'YYYY-MM-DD') as day_key, COALESCE(SUM(total_amount), 0) as revenue FROM orders WHERE status != 'cancelled' AND created_at >= NOW() - INTERVAL '7 days' GROUP BY day, day_key ORDER BY day_key`)
+    ]);
+
+    res.json({
+        success: true,
+        analytics: {
+            revenueByMonth: revenueByMonth.rows,
+            ordersByStatus: ordersByStatus.rows,
+            ordersByMonth: ordersByMonth.rows,
+            topProducts: topProducts.rows,
+            usersByRole: usersByRole.rows,
+            repairsByStatus: repairsByStatus.rows,
+            paymentsByMethod: paymentsByMethod.rows,
+            recentRevenue: recentRevenue.rows
+        }
+    });
+}));
+
 // Get all users
 router.get('/users', authenticate, adminOnly, asyncHandler(async (req, res) => {
     const result = await query(

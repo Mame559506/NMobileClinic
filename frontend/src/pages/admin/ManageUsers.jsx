@@ -3,7 +3,7 @@ import { FaUsers, FaSearch, FaEdit, FaCheckCircle, FaTimesCircle, FaEye, FaTrash
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
-const ROLES = ['customer', 'technician', 'admin', 'manager']
+const ROLES = ['customer', 'technician', 'admin']
 const EMPTY_USER = { first_name: '', last_name: '', email: '', password: '', role: 'customer' }
 
 export default function ManageUsers() {

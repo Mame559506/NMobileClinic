@@ -61,9 +61,10 @@ const initDB = async () => {
         await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS assigned_to UUID`);
         await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS notes TEXT`);
         await query(`ALTER TABLE repairs ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP`);
+        // Allow large base64 images in products
+        await query(`ALTER TABLE products ALTER COLUMN image_url TYPE TEXT`);
 
-        console.log('✅ Migrations applied');
-    } catch (e) {
+        console.log('✅ Migrations applied');    } catch (e) {
         console.log('⚠️ Migration error:', e.message);
     }
 

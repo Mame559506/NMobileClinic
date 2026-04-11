@@ -1,20 +1,17 @@
-const express = require('express');
+﻿const express = require('express');
 const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-const productImgDir = path.join(__dirname, '../uploads/products');
-if (!fs.existsSync(productImgDir)) fs.mkdirSync(productImgDir, { recursive: true });
+// Use memory storage - convert to base64 and store in DB (survives Railway redeploys)
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, productImgDir),
-    filename: (req, file, cb) => cb(null, 'product_' + Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
+function getImageUrl(file, fallback) {
+    if (file) return 'data:' + file.mimetype + ';base64,' + file.buffer.toString('base64');
+    return fallback || null;
+}
 
 router.get('/', asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, category, search, minPrice, maxPrice, sortBy = 'created_at', sortOrder = 'DESC' } = req.query;
@@ -55,7 +52,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
 
 router.post('/', authenticate, authorize('admin', 'manager'), upload.single('product_image'), asyncHandler(async (req, res) => {
     const { name, description, short_description, price, stock_quantity, category_id, sku, brand, is_featured, image_url } = req.body;
-    const imgUrl = req.file ? '/uploads/products/' + req.file.filename : (image_url || null);
+    const imgUrl = getImageUrl(req.file, image_url);
     const result = await query(
         'INSERT INTO products (name, description, short_description, price, stock_quantity, category_id, sku, brand, is_featured, image_url, created_at, updated_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,NOW(),NOW()) RETURNING *',
         [name, description, short_description, parseFloat(price), parseInt(stock_quantity)||0, category_id||null, sku, brand, is_featured==='true'||is_featured===true, imgUrl]
@@ -67,7 +64,7 @@ router.put('/:id', authenticate, authorize('admin', 'manager'), upload.single('p
     const allowed = ['name','description','short_description','price','stock_quantity','category_id','sku','brand','is_featured','is_active','image_url'];
     const updates = {};
     for (const key of allowed) { if (req.body[key] !== undefined) updates[key] = req.body[key]; }
-    if (req.file) updates.image_url = '/uploads/products/' + req.file.filename;
+    if (req.file) updates.image_url = getImageUrl(req.file, null);
     if (!Object.keys(updates).length) return res.status(400).json({ success: false, message: 'No updates' });
     const keys = Object.keys(updates);
     const setParts = keys.map((k, i) => k + ' = $' + (i+1));

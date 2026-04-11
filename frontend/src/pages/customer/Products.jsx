@@ -70,7 +70,10 @@ export default function Products() {
           {filtered.map(p => (
             <div className="product-card" key={p.id}>
               <div className="product-image">
-                {iconMap[p.image] || '📦'}
+                {p.image_url
+                  ? <img src={p.image_url} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <span style={{ fontSize: 48 }}>{iconMap[p.image_url] || '📦'}</span>
+                }
               </div>
               <div className="product-info">
                 <div className="product-name">{p.name}</div>

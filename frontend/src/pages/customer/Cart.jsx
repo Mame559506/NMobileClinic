@@ -42,14 +42,28 @@ export default function Cart() {
               <div className="cart-item-image">ðŸ“¦</div>
               <div className="cart-item-details">
                 <div className="cart-item-name">{item.name}</div>
-                <div className="cart-item-price">ETB {parseFloat(item.price).toFixed(2)} each</div>
+                <div className="cart-item-price">ETB {parseFloat(item.price).toFixed(2)} each
+                  {item.stock_quantity <= 10 && (
+                    <span style={{ marginLeft: 8, fontSize: 11, color: item.stock_quantity === 0 ? 'var(--danger)' : 'var(--warning)', fontWeight: 600 }}>
+                      ({item.stock_quantity} left)
+                    </span>
+                  )}
+                </div>
                 <div className="cart-item-actions">
                   <div className="quantity-control">
                     <button className="quantity-btn" onClick={() => updateQuantity(item.product_id, item.quantity - 1)} disabled={item.quantity <= 1}>
                       <FaMinus size={10} />
                     </button>
                     <input className="quantity-input" type="number" value={item.quantity} readOnly />
-                    <button className="quantity-btn" onClick={() => updateQuantity(item.product_id, item.quantity + 1)}>
+                    <button className="quantity-btn"
+                      disabled={item.quantity >= item.stock_quantity}
+                      onClick={() => {
+                        if (item.quantity >= item.stock_quantity) {
+                          toast.error(`Only ${item.stock_quantity} in stock`)
+                        } else {
+                          updateQuantity(item.product_id, item.quantity + 1)
+                        }
+                      }}>
                       <FaPlus size={10} />
                     </button>
                   </div>

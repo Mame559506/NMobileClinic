@@ -13,6 +13,7 @@ export default function Checkout() {
   const [form, setForm] = useState({ shipping_address: '', payment_method: '' })
   const [paymentForm, setPaymentForm] = useState({ transaction_id: '', receipt: null })
   const [orderId, setOrderId] = useState(null)
+  const [orderTotal, setOrderTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const items = cart?.items || []
   const total = cart?.total || 0
@@ -38,6 +39,7 @@ export default function Checkout() {
       })
       if (r.data.success) {
         setOrderId(r.data.order.id)
+        setOrderTotal(total)
         await clearCart()
         setStep(2)
       }
@@ -85,7 +87,7 @@ export default function Checkout() {
                     ['Bank', selectedBank.bank_name],
                     ['Account Number', selectedBank.account_number],
                     ['Account Name', selectedBank.account_name],
-                    ['Amount', `ETB ${parseFloat(total).toFixed(2)}`],
+                    ['Amount', `ETB ${parseFloat(orderTotal).toFixed(2)}`],
                   ].map(([label, value]) => (
                     <tr key={label}>
                       <td style={{ padding: '8px 0', color: 'var(--gray)', width: 140 }}>{label}</td>

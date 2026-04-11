@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FaUsers, FaSearch, FaEdit, FaCheckCircle, FaTimesCircle, FaEye } from 'react-icons/fa'
+import { FaUsers, FaSearch, FaEdit, FaCheckCircle, FaTimesCircle, FaEye, FaTrash } from 'react-icons/fa'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -38,6 +38,14 @@ export default function ManageUsers() {
     } catch { toast.error('Failed to verify user') }
   }
 
+  const deleteUser = async (id, name) => {
+    if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return
+    try {
+      await api.delete(`/admin/users/${id}`)
+      setUsers(prev => prev.filter(u => u.id !== id))
+      toast.success('User deleted')
+    } catch (err) { toast.error(err.response?.data?.message || 'Failed to delete user') }
+  }
   const startEdit = (user) => {
     setEditing(user.id)
     setEditForm({ first_name: user.first_name, last_name: user.last_name, phone: user.phone, address: user.address })
@@ -198,6 +206,12 @@ export default function ManageUsers() {
                           style={{ padding: '6px 10px', fontSize: 12 }}
                           onClick={() => toggleStatus(u.id, u.is_active)}>
                           {u.is_active ? 'Disable' : 'Enable'}
+                        </button>
+                        <button className="btn btn-danger"
+                          style={{ padding: '6px 10px', fontSize: 12 }}
+                          title="Delete user"
+                          onClick={() => deleteUser(u.id, `${u.first_name} ${u.last_name}`)}>
+                          <FaTrash />
                         </button>
                       </>
                     )}

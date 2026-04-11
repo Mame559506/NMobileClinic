@@ -134,4 +134,15 @@ router.get('/public/bank-settings', asyncHandler(async (req, res) => {
     res.json({ success: true, banks: result.rows });
 }));
 
+// Delete user (admin only)
+router.delete('/users/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    // Prevent deleting yourself
+    if (id === req.user.id) {
+        return res.status(400).json({ success: false, message: 'Cannot delete your own account' });
+    }
+    await query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ success: true, message: 'User deleted' });
+}));
+
 module.exports = router;

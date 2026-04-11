@@ -18,12 +18,12 @@ const Topbar = ({ onMenuClick }) => {
           NancyMobile
         </h2>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div className="user-avatar">{initials}</div>
-        <div>
+        <div className="topbar-user-name">
           <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.firstName} {user?.lastName}</div>
           <div style={{ fontSize: 12, color: 'var(--gray)' }}>
-            {user?.role === 'admin' ? 'Administrator' : user?.role === 'manager' ? 'Manager' : 'Customer'}
+            {user?.role === 'admin' ? 'Administrator' : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? 'Technician' : 'Customer'}
           </div>
         </div>
       </div>

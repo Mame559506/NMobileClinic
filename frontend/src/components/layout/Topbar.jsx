@@ -9,7 +9,7 @@ const Topbar = ({ onMenuClick }) => {
     <div className="topbar">
       <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
         <button onClick={onMenuClick}
-          style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', display: 'none' }}
+          style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--dark)' }}
           className="menu-toggle">
           <FaBars />
         </button>

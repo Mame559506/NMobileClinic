@@ -75,7 +75,7 @@ export default function Products() {
               <div className="product-info">
                 <div className="product-name">{p.name}</div>
                 <div className="product-description">{p.description}</div>
-                <div className="product-price">GHS {parseFloat(p.price).toFixed(2)}</div>
+                <div className="product-price">ETB {parseFloat(p.price).toFixed(2)}</div>
                 {stockLabel(p.stock_quantity)}
                 <div style={{ display: 'flex', gap: 10, marginTop: 15 }}>
                   <button className="btn" style={{ flex: 1, padding: '10px' }}

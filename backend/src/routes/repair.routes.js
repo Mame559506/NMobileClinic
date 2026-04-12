@@ -56,4 +56,20 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     res.status(201).json({ success: true, repair: result.rows[0] });
 }));
 
+// Customer: get their completed repairs eligible for review
+router.get('/my-reviews', authenticate, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT r.id as repair_id, r.device_type, r.issue_description, r.completed_at,
+               r.estimated_cost, r.assigned_to,
+               t.first_name as tech_first, t.last_name as tech_last, t.profile_picture as tech_pic,
+               rv.id as review_id, rv.rating, rv.comment, rv.created_at as reviewed_at
+        FROM repairs r
+        LEFT JOIN users t ON r.assigned_to = t.id
+        LEFT JOIN repair_reviews rv ON rv.repair_id = r.id AND rv.customer_id = $1
+        WHERE r.user_id = $1 AND r.status = 'completed'
+        ORDER BY r.completed_at DESC
+    `, [req.user.id]);
+    res.json({ success: true, repairs: result.rows });
+}));
+
 module.exports = router;

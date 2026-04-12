@@ -23,6 +23,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/cart', icon: <FaShoppingCart />, label: t('shoppingCart'), badge: cartCount },
     { to: '/orders', icon: <FaClipboardList />, label: t('myOrders') },
     { to: '/repairs', icon: <FaTools />, label: t('repairServices2') },
+    { to: '/reviews', icon: <FaStar />, label: 'My Reviews' },
     { to: '/payments', icon: <FaCreditCard />, label: t('payments') },
     { to: '/profile', icon: <FaUser />, label: t('profile') },
   ]

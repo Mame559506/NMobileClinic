@@ -20,6 +20,7 @@ import TrackOrder from './pages/customer/TrackOrder'
 import Profile from './pages/customer/Profile'
 import Repairs from './pages/customer/Repairs'
 import Payments from './pages/customer/Payments'
+import CustomerReviews from './pages/customer/Reviews'
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard'
@@ -133,6 +134,7 @@ function App() {
       <Route path="/orders/:id" element={<VerifiedRoute><OrderDetails /></VerifiedRoute>} />
       <Route path="/profile" element={<CustomerRoute><Profile /></CustomerRoute>} />
       <Route path="/repairs" element={<CustomerRoute><Repairs /></CustomerRoute>} />
+      <Route path="/reviews" element={<CustomerRoute><CustomerReviews /></CustomerRoute>} />
       <Route path="/payments" element={<VerifiedRoute><Payments /></VerifiedRoute>} />
 
       {/* Admin */}

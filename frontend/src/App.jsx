@@ -35,6 +35,11 @@ import AdminProfile from './pages/admin/Profile'
 import TechDashboard from './pages/technician/Dashboard'
 import TechRepairs from './pages/technician/Repairs'
 import TechProfile from './pages/technician/Profile'
+import TechParts from './pages/technician/Parts'
+import RepairHistory from './pages/technician/RepairHistory'
+import TechEarnings from './pages/technician/Earnings'
+import TechReviews from './pages/technician/Reviews'
+import JobRequests from './pages/technician/JobRequests'
 import Chat from './pages/chat/Chat'
 import DeliveryDashboard from './pages/delivery/Dashboard'
 import DeliveryTasks from './pages/delivery/Tasks'
@@ -144,6 +149,11 @@ function App() {
       {/* Technician */}
       <Route path="/technician/dashboard" element={<TechRoute><TechDashboard /></TechRoute>} />
       <Route path="/technician/repairs" element={<TechRoute><TechRepairs /></TechRoute>} />
+      <Route path="/technician/job-requests" element={<TechRoute><JobRequests /></TechRoute>} />
+      <Route path="/technician/parts" element={<TechRoute><TechParts /></TechRoute>} />
+      <Route path="/technician/history" element={<TechRoute><RepairHistory /></TechRoute>} />
+      <Route path="/technician/earnings" element={<TechRoute><TechEarnings /></TechRoute>} />
+      <Route path="/technician/reviews" element={<TechRoute><TechReviews /></TechRoute>} />
       <Route path="/technician/profile" element={<TechRoute><TechProfile /></TechRoute>} />
 
       {/* Chat */}

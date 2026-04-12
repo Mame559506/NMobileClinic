@@ -2,7 +2,8 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { FaMobileAlt, FaHome, FaBox, FaShoppingCart, FaClipboardList,
   FaTools, FaCreditCard, FaUser, FaSignOutAlt, FaTachometerAlt,
   FaUsers, FaBoxes, FaClipboardCheck, FaMoneyCheckAlt, FaWarehouse,
-  FaChartBar, FaUniversity, FaComments, FaTruck, FaHistory } from 'react-icons/fa'
+  FaChartBar, FaUniversity, FaComments, FaTruck, FaHistory,
+  FaBell, FaMoneyBillWave, FaStar, FaBoxOpen, FaToggleOn } from 'react-icons/fa'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useLanguage } from '../../context/LanguageContext'
@@ -42,7 +43,12 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const techLinks = [
     { to: '/technician/dashboard', icon: <FaTachometerAlt />, label: t('dashboard') },
+    { to: '/technician/job-requests', icon: <FaBell />, label: 'Job Requests' },
     { to: '/technician/repairs', icon: <FaTools />, label: t('repairAssignmentsSidebar') },
+    { to: '/technician/parts', icon: <FaBoxOpen />, label: 'Parts & Inventory' },
+    { to: '/technician/history', icon: <FaHistory />, label: 'Repair History' },
+    { to: '/technician/earnings', icon: <FaMoneyBillWave />, label: 'Earnings' },
+    { to: '/technician/reviews', icon: <FaStar />, label: 'Reviews' },
     { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },
     { to: '/technician/profile', icon: <FaUser />, label: t('profile') },
   ]

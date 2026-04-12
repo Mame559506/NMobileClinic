@@ -78,4 +78,128 @@ router.put('/repairs/:id', authenticate, isTech, verifiedTech, asyncHandler(asyn
     res.json({ success: true, repair: result.rows[0] });
 }));
 
+// ── Repair History ──────────────────────────────────────────────────────────
+router.get('/history', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT r.*, u.first_name, u.last_name, u.email as customer_email, u.phone as customer_phone
+        FROM repairs r
+        LEFT JOIN users u ON r.user_id = u.id
+        WHERE r.assigned_to = $1 AND r.status = 'completed'
+        ORDER BY r.completed_at DESC
+    `, [req.user.id]);
+    res.json({ success: true, repairs: result.rows });
+}));
+
+// ── Earnings ────────────────────────────────────────────────────────────────
+router.get('/earnings', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const [total, daily, weekly, jobs] = await Promise.all([
+        query(`SELECT COALESCE(SUM(estimated_cost),0) as total FROM repairs WHERE assigned_to=$1 AND status='completed'`, [req.user.id]),
+        query(`SELECT COALESCE(SUM(estimated_cost),0) as total FROM repairs WHERE assigned_to=$1 AND status='completed' AND completed_at >= NOW()-INTERVAL '1 day'`, [req.user.id]),
+        query(`SELECT COALESCE(SUM(estimated_cost),0) as total FROM repairs WHERE assigned_to=$1 AND status='completed' AND completed_at >= NOW()-INTERVAL '7 days'`, [req.user.id]),
+        query(`SELECT TO_CHAR(completed_at,'YYYY-MM-DD') as day, COUNT(*) as jobs, COALESCE(SUM(estimated_cost),0) as revenue FROM repairs WHERE assigned_to=$1 AND status='completed' AND completed_at >= NOW()-INTERVAL '30 days' GROUP BY day ORDER BY day DESC`, [req.user.id]),
+    ]);
+    res.json({ success: true, earnings: {
+        total: parseFloat(total.rows[0].total),
+        daily: parseFloat(daily.rows[0].total),
+        weekly: parseFloat(weekly.rows[0].total),
+        breakdown: jobs.rows,
+    }});
+}));
+
+// ── Reviews ─────────────────────────────────────────────────────────────────
+router.get('/reviews', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT rv.*, u.first_name, u.last_name, r.device_type
+        FROM repair_reviews rv
+        JOIN users u ON rv.customer_id = u.id
+        JOIN repairs r ON rv.repair_id = r.id
+        WHERE rv.technician_id = $1
+        ORDER BY rv.created_at DESC
+    `, [req.user.id]);
+    const avg = await query(`SELECT ROUND(AVG(rating),1) as avg FROM repair_reviews WHERE technician_id=$1`, [req.user.id]);
+    res.json({ success: true, reviews: result.rows, average: parseFloat(avg.rows[0].avg) || 0 });
+}));
+
+// Submit review (customer)
+router.post('/reviews', authenticate, asyncHandler(async (req, res) => {
+    const { repair_id, technician_id, rating, comment } = req.body;
+    if (!repair_id || !technician_id || !rating) return res.status(400).json({ success: false, message: 'repair_id, technician_id and rating required' });
+    const result = await query(
+        `INSERT INTO repair_reviews (repair_id, technician_id, customer_id, rating, comment, created_at) VALUES ($1,$2,$3,$4,$5,NOW()) ON CONFLICT (repair_id) DO UPDATE SET rating=$4, comment=$5 RETURNING *`,
+        [repair_id, technician_id, req.user.id, rating, comment]
+    );
+    res.status(201).json({ success: true, review: result.rows[0] });
+}));
+
+// ── Availability ─────────────────────────────────────────────────────────────
+router.get('/availability', authenticate, isTech, asyncHandler(async (req, res) => {
+    const result = await query(`SELECT is_available FROM users WHERE id=$1`, [req.user.id]);
+    res.json({ success: true, available: result.rows[0]?.is_available ?? false });
+}));
+
+router.put('/availability', authenticate, isTech, asyncHandler(async (req, res) => {
+    const { available } = req.body;
+    await query(`UPDATE users SET is_available=$1, updated_at=NOW() WHERE id=$2`, [available, req.user.id]);
+    res.json({ success: true, available });
+}));
+
+// ── Parts & Inventory ────────────────────────────────────────────────────────
+router.get('/parts', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(`SELECT * FROM spare_parts ORDER BY name`);
+    res.json({ success: true, parts: result.rows });
+}));
+
+router.post('/parts/request', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const { part_name, quantity, repair_id, notes } = req.body;
+    const result = await query(
+        `INSERT INTO parts_requests (technician_id, part_name, quantity, repair_id, notes, status, created_at) VALUES ($1,$2,$3,$4,$5,'pending',NOW()) RETURNING *`,
+        [req.user.id, part_name, quantity || 1, repair_id || null, notes || null]
+    );
+    res.status(201).json({ success: true, request: result.rows[0] });
+}));
+
+router.get('/parts/requests', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(
+        `SELECT pr.*, r.device_type FROM parts_requests pr LEFT JOIN repairs r ON pr.repair_id = r.id WHERE pr.technician_id=$1 ORDER BY pr.created_at DESC`,
+        [req.user.id]
+    );
+    res.json({ success: true, requests: result.rows });
+}));
+
+router.get('/parts/used', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(
+        `SELECT pu.*, sp.name as part_name, r.device_type FROM parts_usage pu JOIN spare_parts sp ON pu.part_id = sp.id JOIN repairs r ON pu.repair_id = r.id WHERE pu.technician_id=$1 ORDER BY pu.used_at DESC`,
+        [req.user.id]
+    );
+    res.json({ success: true, usage: result.rows });
+}));
+
+// ── Job Requests (unassigned repairs with full customer details) ──────────────
+router.get('/job-requests', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT r.*, u.first_name, u.last_name, u.email as customer_email,
+               u.phone as customer_phone, u.address as customer_address
+        FROM repairs r
+        JOIN users u ON r.user_id = u.id
+        WHERE r.assigned_to IS NULL AND r.status = 'pending'
+        ORDER BY r.created_at DESC
+    `);
+    res.json({ success: true, requests: result.rows });
+}));
+
+// Accept job request
+router.post('/job-requests/:id/accept', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    const result = await query(
+        `UPDATE repairs SET assigned_to=$1, status='diagnosed', updated_at=NOW() WHERE id=$2 AND assigned_to IS NULL RETURNING *`,
+        [req.user.id, req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(400).json({ success: false, message: 'Job already taken or not found' });
+    res.json({ success: true, repair: result.rows[0] });
+}));
+
+// Reject job request (just ignore — no action needed, but log it)
+router.post('/job-requests/:id/reject', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
+    res.json({ success: true, message: 'Job request declined' });
+}));
+
 module.exports = router;

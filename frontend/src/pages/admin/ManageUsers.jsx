@@ -10,6 +10,7 @@ const EMPTY_USER = { first_name: '', last_name: '', email: '', password: '', rol
 export default function ManageUsers() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState('')
   const [search, setSearch] = useState('')
   const [viewing, setViewing] = useState(null)
   const [editing, setEditing] = useState(null)
@@ -22,10 +23,14 @@ export default function ManageUsers() {
   useEffect(() => { fetchUsers() }, [])
 
   const fetchUsers = () => {
+    setFetchError('')
     api.get('/admin/users').then(r => {
       if (r.data.success) setUsers(r.data.users || [])
+      else setFetchError(r.data.message || 'Failed to load users')
     }).catch(err => {
-      console.error('Failed to load users:', err.response?.data || err.message)
+      const msg = err.response?.data?.message || err.message || 'Failed to load users'
+      setFetchError(msg)
+      console.error('ManageUsers fetch error:', msg)
     }).finally(() => setLoading(false))
   }
 
@@ -218,6 +223,10 @@ export default function ManageUsers() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>{t('loading')}</td></tr>
+              ) : fetchError ? (
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: 'var(--danger)' }}>
+                  Error: {fetchError} — <button className="btn btn-outline" style={{ fontSize: 12, padding: '4px 10px', marginLeft: 8 }} onClick={fetchUsers}>Retry</button>
+                </td></tr>
               ) : filtered.map(u => (
                 <tr key={u.id}>
                   <td>

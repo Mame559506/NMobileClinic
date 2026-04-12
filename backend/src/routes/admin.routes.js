@@ -78,9 +78,9 @@ router.get('/users', authenticate, adminOnly, asyncHandler(async (req, res) => {
                u.is_active, u.is_verified, u.verification_status,
                u.national_id, u.fan_number, u.profile_picture, u.national_id_file,
                u.created_at, u.updated_at, u.role_id,
-               r.name as role
+               COALESCE(r.name, 'unknown') as role
         FROM users u
-        JOIN roles r ON u.role_id = r.id
+        LEFT JOIN roles r ON u.role_id = r.id
         ORDER BY u.created_at DESC
     `);
     res.json({ success: true, users: result.rows });

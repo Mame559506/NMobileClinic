@@ -46,6 +46,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!strong) { setError('Password does not meet the requirements.'); return }
+    if (form.phone && !/^(09|07)\d{8}$/.test(form.phone)) { setError('Phone number must be 10 digits starting with 09 or 07.'); return }
     if (!agreed) { setError('You must agree to the Terms & Conditions.'); return }
     setError(''); setLoading(true)
     const result = await register(form)
@@ -92,11 +93,15 @@ export default function Register() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             <div className="form-group">
               <label>{t('firstName')}</label>
-              <input className="form-control" placeholder={t('firstName')} value={form.firstName} onChange={set('firstName')} required />
+              <input className="form-control" placeholder={t('firstName')} value={form.firstName}
+                onChange={e => { const v = e.target.value.replace(/[^a-zA-Z\s]/g, ''); setForm({ ...form, firstName: v }) }}
+                required />
             </div>
             <div className="form-group">
               <label>{t('lastName')}</label>
-              <input className="form-control" placeholder={t('lastName')} value={form.lastName} onChange={set('lastName')} required />
+              <input className="form-control" placeholder={t('lastName')} value={form.lastName}
+                onChange={e => { const v = e.target.value.replace(/[^a-zA-Z\s]/g, ''); setForm({ ...form, lastName: v }) }}
+                required />
             </div>
           </div>
 
@@ -156,7 +161,21 @@ export default function Register() {
 
           <div className="form-group">
             <label>{t('phoneNumber')}</label>
-            <input className="form-control" placeholder={t('phoneNumber')} value={form.phone} onChange={set('phone')} />
+            <input className="form-control"
+              placeholder="09xxxxxxxx or 07xxxxxxxx"
+              value={form.phone}
+              inputMode="numeric"
+              maxLength={10}
+              onChange={e => {
+                const v = e.target.value.replace(/[^0-9]/g, '').slice(0, 10)
+                setForm({ ...form, phone: v })
+              }}
+            />
+            {form.phone && !/^(09|07)\d{8}$/.test(form.phone) && (
+              <small style={{ color: 'var(--danger)', fontSize: 12 }}>
+                Must be 10 digits starting with 09 or 07
+              </small>
+            )}
           </div>
           <div className="form-group">
             <label>{t('address')}</label>

@@ -17,16 +17,22 @@ const Sidebar = ({ isOpen, onClose }) => {
   const isTech = user?.role === 'technician'
   const isDelivery = user?.role === 'delivery_person'
 
+  const isVerified = user?.is_verified
+
   const customerLinks = [
     { to: '/dashboard', icon: <FaHome />, label: t('dashboard') },
     { to: '/products', icon: <FaBox />, label: t('products') },
-    { to: '/cart', icon: <FaShoppingCart />, label: t('shoppingCart'), badge: cartCount },
-    { to: '/orders', icon: <FaClipboardList />, label: t('myOrders') },
-    { to: '/track', icon: <FaTruck />, label: 'Track Order' },
+    ...(isVerified ? [
+      { to: '/cart', icon: <FaShoppingCart />, label: t('shoppingCart'), badge: cartCount },
+      { to: '/orders', icon: <FaClipboardList />, label: t('myOrders') },
+      { to: '/track', icon: <FaTruck />, label: 'Track Order' },
+    ] : []),
     { to: '/repairs', icon: <FaTools />, label: t('repairServices2') },
-    { to: '/reviews', icon: <FaStar />, label: 'My Reviews' },
-    { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },
-    { to: '/payments', icon: <FaCreditCard />, label: t('payments') },
+    ...(isVerified ? [
+      { to: '/reviews', icon: <FaStar />, label: 'My Reviews' },
+      { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },
+      { to: '/payments', icon: <FaCreditCard />, label: t('payments') },
+    ] : []),
     { to: '/profile', icon: <FaUser />, label: t('profile') },
   ]
 

@@ -127,8 +127,8 @@ function App() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
       <Route path="/track-order/:orderNumber?" element={<TrackOrder />} />
-      <Route path="/track" element={<CustomerRoute><TrackOrder /></CustomerRoute>} />
-      <Route path="/track/:orderNumber" element={<CustomerRoute><TrackOrder /></CustomerRoute>} />
+      <Route path="/track" element={<VerifiedRoute><TrackOrder /></VerifiedRoute>} />
+      <Route path="/track/:orderNumber" element={<VerifiedRoute><TrackOrder /></VerifiedRoute>} />
 
       {/* Customer */}
       <Route path="/dashboard" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />
@@ -140,7 +140,7 @@ function App() {
       <Route path="/orders/:id" element={<VerifiedRoute><OrderDetails /></VerifiedRoute>} />
       <Route path="/profile" element={<CustomerRoute><Profile /></CustomerRoute>} />
       <Route path="/repairs" element={<CustomerRoute><Repairs /></CustomerRoute>} />
-      <Route path="/reviews" element={<CustomerRoute><CustomerReviews /></CustomerRoute>} />
+      <Route path="/reviews" element={<VerifiedRoute><CustomerReviews /></VerifiedRoute>} />
       <Route path="/payments" element={<VerifiedRoute><Payments /></VerifiedRoute>} />
 
       {/* Admin */}

@@ -13,6 +13,11 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
 }));
 
 router.post('/', authenticate, asyncHandler(async (req, res) => {
+    // Only verified customers can submit repair requests
+    const userResult = await query('SELECT is_verified FROM users WHERE id = $1', [req.user.id]);
+    if (!userResult.rows[0]?.is_verified) {
+        return res.status(403).json({ success: false, message: 'Your account must be verified before submitting a repair request.' });
+    }
     const { device_type, issue_description } = req.body;
     const result = await query(
         `INSERT INTO repairs (user_id, device_type, issue_description, status, created_at, updated_at)

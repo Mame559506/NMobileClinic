@@ -1,5 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
-import { FaTools, FaPlus } from 'react-icons/fa'
+import { FaTools, FaPlus, FaLock } from 'react-icons/fa'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -9,7 +11,10 @@ export default function Repairs() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ device_type: '', issue_description: '' })
+  const { user } = useAuth()
   const { t } = useLanguage()
+
+  const isVerified = user?.is_verified
 
   useEffect(() => {
     api.get('/repairs').then(r => {
@@ -27,7 +32,9 @@ export default function Repairs() {
         setShowForm(false)
         toast.success(t('repairSubmitted'))
       }
-    } catch { toast.error('Failed to submit repair request') }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to submit repair request')
+    }
   }
 
   const statusClass = (s) => {
@@ -41,12 +48,39 @@ export default function Repairs() {
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2><FaTools style={{ marginRight: 8, color: 'var(--primary)' }} />{t('repairServices')}</h2>
-        <button className="btn" onClick={() => setShowForm(!showForm)}>
-          <FaPlus style={{ marginRight: 6 }} /> {t('newRequest')}
-        </button>
+        {isVerified && (
+          <button className="btn" onClick={() => setShowForm(!showForm)}>
+            <FaPlus style={{ marginRight: 6 }} /> {t('newRequest')}
+          </button>
+        )}
       </div>
 
-      {showForm && (
+      {/* Verification gate banner */}
+      {!isVerified && (
+        <div style={{
+          background: 'rgba(248,150,30,0.1)', border: '1px solid var(--warning)',
+          borderRadius: 8, padding: '16px 20px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', gap: 14
+        }}>
+          <FaLock style={{ color: 'var(--warning)', fontSize: 22, flexShrink: 0 }} />
+          <div>
+            <strong style={{ color: 'var(--warning)', display: 'block', marginBottom: 4 }}>
+              {t('accountNotVerified')}
+            </strong>
+            <p style={{ fontSize: 13, color: 'var(--gray)', margin: 0 }}>
+              {user?.verification_status === 'pending'
+                ? t('verificationPending')
+                : t('verificationComplete')}
+            </p>
+          </div>
+          <Link to="/profile" className="btn" style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}>
+            {t('completeProfile')}
+          </Link>
+        </div>
+      )}
+
+      {/* New request form — only shown when verified */}
+      {isVerified && showForm && (
         <div className="card" style={{ marginBottom: 20 }}>
           <h3 style={{ marginBottom: 15 }}>{t('submitRepairRequest')}</h3>
           <form onSubmit={handleSubmit}>
@@ -78,7 +112,10 @@ export default function Repairs() {
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('date')}</th></tr>
+                <tr>
+                  <th>ID</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th>
+                  <th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('date')}</th>
+                </tr>
               </thead>
               <tbody>
                 {repairs.map(r => (
@@ -99,4 +136,3 @@ export default function Repairs() {
     </div>
   )
 }
-

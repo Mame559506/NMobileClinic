@@ -120,13 +120,37 @@ router.get('/reviews', authenticate, isTech, verifiedTech, asyncHandler(async (r
     res.json({ success: true, reviews: result.rows, average: parseFloat(avg.rows[0].avg) || 0 });
 }));
 
-// Submit review (customer)
+// Submit review (customer) — technician_id is optional, looked up from repair if missing
 router.post('/reviews', authenticate, asyncHandler(async (req, res) => {
-    const { repair_id, technician_id, rating, comment } = req.body;
-    if (!repair_id || !technician_id || !rating) return res.status(400).json({ success: false, message: 'repair_id, technician_id and rating required' });
+    const { repair_id, rating, comment } = req.body;
+    let { technician_id } = req.body;
+    if (!repair_id || !rating) {
+        return res.status(400).json({ success: false, message: 'repair_id and rating are required' });
+    }
+    // Verify the repair belongs to this customer and is completed
+    const repairResult = await query(
+        `SELECT id, assigned_to, user_id, status FROM repairs WHERE id = $1`,
+        [repair_id]
+    );
+    if (repairResult.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Repair not found' });
+    }
+    const repair = repairResult.rows[0];
+    if (repair.user_id !== req.user.id) {
+        return res.status(403).json({ success: false, message: 'Not your repair' });
+    }
+    if (repair.status !== 'completed') {
+        return res.status(400).json({ success: false, message: 'Can only review completed repairs' });
+    }
+    // Use assigned_to from repair if technician_id not provided
+    if (!technician_id) technician_id = repair.assigned_to;
+
     const result = await query(
-        `INSERT INTO repair_reviews (repair_id, technician_id, customer_id, rating, comment, created_at) VALUES ($1,$2,$3,$4,$5,NOW()) ON CONFLICT (repair_id) DO UPDATE SET rating=$4, comment=$5 RETURNING *`,
-        [repair_id, technician_id, req.user.id, rating, comment]
+        `INSERT INTO repair_reviews (repair_id, technician_id, customer_id, rating, comment, created_at)
+         VALUES ($1,$2,$3,$4,$5,NOW())
+         ON CONFLICT (repair_id) DO UPDATE SET rating=$4, comment=$5, technician_id=$2
+         RETURNING *`,
+        [repair_id, technician_id || null, req.user.id, rating, comment || null]
     );
     res.status(201).json({ success: true, review: result.rows[0] });
 }));

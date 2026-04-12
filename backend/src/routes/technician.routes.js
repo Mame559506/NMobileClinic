@@ -217,7 +217,11 @@ router.get('/job-requests', authenticate, isTech, verifiedTech, asyncHandler(asy
 // Accept job request
 router.post('/job-requests/:id/accept', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
     const result = await query(
-        `UPDATE repairs SET assigned_to=$1, status='diagnosed', updated_at=NOW() WHERE id=$2 AND assigned_to IS NULL RETURNING *`,
+        `UPDATE repairs SET assigned_to=$1, status='diagnosed', updated_at=NOW()
+         WHERE id=$2
+           AND status='pending'
+           AND (assigned_to IS NULL OR assigned_to = $1)
+         RETURNING *`,
         [req.user.id, req.params.id]
     );
     if (result.rows.length === 0) return res.status(400).json({ success: false, message: 'Job already taken or not found' });

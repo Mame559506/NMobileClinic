@@ -124,6 +124,8 @@ function App() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
       <Route path="/track-order/:orderNumber?" element={<TrackOrder />} />
+      <Route path="/track" element={<CustomerRoute><TrackOrder /></CustomerRoute>} />
+      <Route path="/track/:orderNumber" element={<CustomerRoute><TrackOrder /></CustomerRoute>} />
 
       {/* Customer */}
       <Route path="/" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />

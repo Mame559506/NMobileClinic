@@ -10,10 +10,36 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
     res.json({ success: true, orders: result.rows });
 }));
 
-// Track order by order number (public)
+// Track order by order number (public + authenticated)
 router.get('/track/:orderNumber', asyncHandler(async (req, res) => {
-    const result = await query('SELECT id, order_number, status, total_amount, shipping_address, created_at, updated_at FROM orders WHERE order_number = $1', [req.params.orderNumber]);
+    const result = await query(`
+        SELECT o.id, o.order_number, o.status, o.total_amount, o.shipping_address,
+               o.payment_method, o.created_at, o.updated_at,
+               p.status as payment_status,
+               dj.status as delivery_status, dj.job_type,
+               d.first_name as driver_first, d.last_name as driver_last, d.phone as driver_phone
+        FROM orders o
+        LEFT JOIN payments p ON p.order_id = o.id
+        LEFT JOIN delivery_jobs dj ON dj.order_id = o.id AND dj.status NOT IN ('cancelled')
+        LEFT JOIN users d ON dj.assigned_to = d.id
+        WHERE o.order_number = $1
+    `, [req.params.orderNumber]);
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Order not found' });
+    res.json({ success: true, order: result.rows[0] });
+}));
+
+// Customer: confirm delivery received
+router.post('/track/:orderNumber/confirm', authenticate, asyncHandler(async (req, res) => {
+    const result = await query(
+        `UPDATE orders SET status='delivered', updated_at=NOW() WHERE order_number=$1 AND user_id=$2 RETURNING *`,
+        [req.params.orderNumber, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(400).json({ success: false, message: 'Cannot confirm this order' });
+    // Also complete the delivery job
+    await query(
+        `UPDATE delivery_jobs SET status='completed', completed_at=NOW(), updated_at=NOW() WHERE order_id=$1 AND status='delivered'`,
+        [result.rows[0].id]
+    );
     res.json({ success: true, order: result.rows[0] });
 }));
 

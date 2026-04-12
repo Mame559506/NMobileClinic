@@ -83,6 +83,23 @@ router.put('/jobs/:id', isDelivery, verifiedDelivery, asyncHandler(async (req, r
     if (isCompleted && result.rows[0].order_id) {
         await query(`UPDATE orders SET status='delivered', updated_at=NOW() WHERE id=$1`, [result.rows[0].order_id]);
     }
+
+    // When status becomes 'delivered', notify the customer via chat message
+    if (status === 'delivered' && result.rows[0].order_id) {
+        try {
+            const orderRes = await query(
+                `SELECT o.user_id, o.order_number, u.first_name FROM orders o JOIN users u ON o.user_id = u.id WHERE o.id=$1`,
+                [result.rows[0].order_id]
+            );
+            if (orderRes.rows.length > 0) {
+                const { user_id, order_number, first_name } = orderRes.rows[0];
+                const msg = `Hi ${first_name}! Your order ${order_number} has arrived. Please confirm receipt in the app. 📦`;
+                await query(`INSERT INTO messages (sender_id, receiver_id, content, created_at) VALUES ($1,$2,$3,NOW())`,
+                    [req.user.id, user_id, msg]);
+            }
+        } catch (e) { /* non-critical */ }
+    }
+
     res.json({ success: true, job: result.rows[0] });
 }));
 

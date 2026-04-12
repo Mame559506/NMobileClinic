@@ -22,6 +22,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/products', icon: <FaBox />, label: t('products') },
     { to: '/cart', icon: <FaShoppingCart />, label: t('shoppingCart'), badge: cartCount },
     { to: '/orders', icon: <FaClipboardList />, label: t('myOrders') },
+    { to: '/track', icon: <FaTruck />, label: 'Track Order' },
     { to: '/repairs', icon: <FaTools />, label: t('repairServices2') },
     { to: '/reviews', icon: <FaStar />, label: 'My Reviews' },
     { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },

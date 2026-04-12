@@ -181,9 +181,12 @@ router.get('/job-requests', authenticate, isTech, verifiedTech, asyncHandler(asy
                u.phone as customer_phone, u.address as customer_address
         FROM repairs r
         JOIN users u ON r.user_id = u.id
-        WHERE r.assigned_to IS NULL AND r.status = 'pending'
-        ORDER BY r.created_at DESC
-    `);
+        WHERE r.status = 'pending'
+          AND (r.assigned_to IS NULL OR r.assigned_to = $1)
+        ORDER BY
+          CASE WHEN r.assigned_to = $1 THEN 0 ELSE 1 END,
+          r.created_at DESC
+    `, [req.user.id]);
     res.json({ success: true, requests: result.rows });
 }));
 

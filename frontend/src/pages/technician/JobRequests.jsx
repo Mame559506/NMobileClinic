@@ -80,7 +80,10 @@ export default function JobRequests() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: 16 }}>#{req.id}</span>
-                <span className="status-badge status-pending">New Request</span>
+                {req.assigned_to
+                  ? <span style={{ background: 'rgba(67,97,238,0.15)', color: 'var(--primary)', borderRadius: 10, padding: '2px 10px', fontSize: 12, fontWeight: 600 }}>⭐ Direct Request</span>
+                  : <span className="status-badge status-pending">Open Request</span>
+                }
                 <span style={{ fontSize: 12, color: 'var(--gray)' }}>{new Date(req.created_at).toLocaleString()}</span>
               </div>
 

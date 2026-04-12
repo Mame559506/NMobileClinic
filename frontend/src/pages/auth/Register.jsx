@@ -4,7 +4,9 @@ import { useLanguage } from '../../context/LanguageContext'
 import { Link } from 'react-router-dom'
 import { FaMobileAlt, FaGlobe, FaEye, FaEyeSlash, FaDice, FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 
-// Password strength checker
+// Phone validation: 09/07 + 8 digits OR +2519/+2517 + 8 digits
+const isValidPhone = (ph) =>
+  /^(09|07)\d{8}$/.test(ph) || /^\+251(9|7)\d{8}$/.test(ph)
 const checkPassword = (pw) => ({
   length:  pw.length >= 12,
   upper:   /[A-Z]/.test(pw),
@@ -46,7 +48,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!strong) { setError('Password does not meet the requirements.'); return }
-    if (form.phone && !/^(09|07)\d{8}$/.test(form.phone)) { setError('Phone number must be 10 digits starting with 09 or 07.'); return }
+    if (form.phone && !isValidPhone(form.phone)) { setError('Phone must be 09xxxxxxxx, 07xxxxxxxx, +2519xxxxxxxx or +2517xxxxxxxx.'); return }
     if (!agreed) { setError('You must agree to the Terms & Conditions.'); return }
     setError(''); setLoading(true)
     const result = await register(form)
@@ -162,18 +164,25 @@ export default function Register() {
           <div className="form-group">
             <label>{t('phoneNumber')}</label>
             <input className="form-control"
-              placeholder="09xxxxxxxx or 07xxxxxxxx"
+              placeholder="09xxxxxxxx / 07xxxxxxxx / +2519xxxxxxxx"
               value={form.phone}
-              inputMode="numeric"
-              maxLength={10}
+              maxLength={13}
               onChange={e => {
-                const v = e.target.value.replace(/[^0-9]/g, '').slice(0, 10)
+                let v = e.target.value
+                // Allow + only at the start
+                v = v.replace(/(?!^\+)[^0-9]/g, '')
+                // If starts with +, allow up to 13 chars (+251 + 9 digits), else digits only max 10
+                if (v.startsWith('+')) {
+                  v = '+' + v.slice(1).replace(/[^0-9]/g, '').slice(0, 12)
+                } else {
+                  v = v.replace(/[^0-9]/g, '').slice(0, 10)
+                }
                 setForm({ ...form, phone: v })
               }}
             />
-            {form.phone && !/^(09|07)\d{8}$/.test(form.phone) && (
+            {form.phone && !isValidPhone(form.phone) && (
               <small style={{ color: 'var(--danger)', fontSize: 12 }}>
-                Must be 10 digits starting with 09 or 07
+                Use 09xxxxxxxx, 07xxxxxxxx, +2519xxxxxxxx or +2517xxxxxxxx
               </small>
             )}
           </div>

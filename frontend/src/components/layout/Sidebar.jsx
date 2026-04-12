@@ -3,7 +3,7 @@ import { FaMobileAlt, FaHome, FaBox, FaShoppingCart, FaClipboardList,
   FaTools, FaCreditCard, FaUser, FaSignOutAlt, FaTachometerAlt,
   FaUsers, FaBoxes, FaClipboardCheck, FaMoneyCheckAlt, FaWarehouse,
   FaChartBar, FaUniversity, FaComments, FaTruck, FaHistory,
-  FaBell, FaMoneyBillWave, FaStar, FaBoxOpen, FaToggleOn } from 'react-icons/fa'
+  FaBell, FaMoneyBillWave, FaStar, FaBoxOpen, FaToggleOn, FaMapMarkerAlt } from 'react-icons/fa'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useLanguage } from '../../context/LanguageContext'
@@ -60,6 +60,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/delivery/dashboard', icon: <FaTachometerAlt />, label: t('dashboard') },
     { to: '/delivery/tasks', icon: <FaClipboardList />, label: 'Tasks' },
     { to: '/delivery/active', icon: <FaTruck />, label: 'Active Job' },
+    { to: '/delivery/map', icon: <FaMapMarkerAlt />, label: 'Map & Navigation' },
     { to: '/delivery/history', icon: <FaHistory />, label: 'History' },
     { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },
     { to: '/delivery/profile', icon: <FaUser />, label: t('profile') },

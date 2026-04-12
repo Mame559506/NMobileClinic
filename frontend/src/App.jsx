@@ -48,6 +48,7 @@ import DeliveryTasks from './pages/delivery/Tasks'
 import ActiveJob from './pages/delivery/ActiveJob'
 import DeliveryHistory from './pages/delivery/History'
 import DeliveryProfile from './pages/delivery/Profile'
+import DeliveryMap from './pages/delivery/Map'
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth()
@@ -167,6 +168,7 @@ function App() {
       <Route path="/delivery/dashboard" element={<DeliveryRoute><DeliveryDashboard /></DeliveryRoute>} />
       <Route path="/delivery/tasks" element={<DeliveryRoute><DeliveryTasks /></DeliveryRoute>} />
       <Route path="/delivery/active" element={<DeliveryRoute><ActiveJob /></DeliveryRoute>} />
+      <Route path="/delivery/map" element={<DeliveryRoute><DeliveryMap /></DeliveryRoute>} />
       <Route path="/delivery/history" element={<DeliveryRoute><DeliveryHistory /></DeliveryRoute>} />
       <Route path="/delivery/profile" element={<DeliveryRoute><DeliveryProfile /></DeliveryRoute>} />
 

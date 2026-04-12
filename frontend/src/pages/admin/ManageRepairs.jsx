@@ -52,7 +52,7 @@ export default function ManageRepairs() {
         <div className="table-responsive">
           <table className="data-table">
             <thead>
-              <tr><th>ID</th><th>{t('customer')}</th><th>{t('deviceType')}</th><th>{t('issue')}</th><th>{t('technicianLabel')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('date')}</th><th>{t('actions')}</th></tr>
+              <tr><th>ID</th><th>{t('customerLabel')}</th><th>{t('deviceType')}</th><th>{t('issue')}</th><th>{t('technicianLabel')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('date')}</th><th>{t('actions')}</th></tr>
             </thead>
             <tbody>
               {loading ? (

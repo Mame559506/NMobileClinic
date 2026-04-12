@@ -91,7 +91,7 @@ export default function PaymentVerification() {
         <div className="table-responsive">
           <table className="data-table">
             <thead>
-              <tr><th>{t('order')}</th><th>{t('customer')}</th><th>{t('amount')}</th><th>{t('bank')}</th><th>{t('transactionId')}</th><th>{t('receipt')}</th><th>{t('status')}</th><th>{t('date')}</th><th>{t('actions')}</th></tr>
+              <tr><th>{t('order')}</th><th>{t('customerLabel')}</th><th>{t('amount')}</th><th>{t('bank')}</th><th>{t('transactionId')}</th><th>{t('receipt')}</th><th>{t('status')}</th><th>{t('date')}</th><th>{t('actions')}</th></tr>
             </thead>
             <tbody>
               {loading ? (

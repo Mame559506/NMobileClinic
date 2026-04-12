@@ -71,7 +71,7 @@ export default function TechRepairs() {
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>{t('customer')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('date')}</th><th>{t('action')}</th></tr>
+                <tr><th>ID</th><th>{t('customerLabel')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('date')}</th><th>{t('action')}</th></tr>
               </thead>
               <tbody>
                 {unassigned.map(r => (
@@ -104,7 +104,7 @@ export default function TechRepairs() {
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>{t('customer')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('notes')}</th><th>{t('action')}</th></tr>
+                <tr><th>ID</th><th>{t('customerLabel')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('notes')}</th><th>{t('action')}</th></tr>
               </thead>
               <tbody>
                 {myRepairs.map(r => (

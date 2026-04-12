@@ -53,7 +53,7 @@ export default function AdminDashboard() {
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>{t('orderNumber')}</th><th>{t('customer')}</th><th>{t('total')}</th><th>{t('status')}</th><th>{t('date')}</th></tr>
+                <tr><th>{t('orderNumber')}</th><th>{t('customerLabel')}</th><th>{t('total')}</th><th>{t('status')}</th><th>{t('date')}</th></tr>
               </thead>
               <tbody>
                 {recentOrders.map(o => (

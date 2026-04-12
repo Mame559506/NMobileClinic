@@ -7,6 +7,7 @@ import { FaMobileAlt, FaHome, FaBox, FaShoppingCart, FaClipboardList,
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { useLanguage } from '../../context/LanguageContext'
+import NancyLogo from '../NancyLogo'
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth()
@@ -79,7 +80,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   return (
     <div className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-header">
-        <div className="logo"><FaMobileAlt /> NancyMobile</div>
+        <div className="logo">
+          <NancyLogo size={32} /> NancyMobile
+        </div>
       </div>
       <ul className="sidebar-menu">
         {links.map(({ to, icon, label, badge }) => (

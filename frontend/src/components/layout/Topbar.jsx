@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { useTheme, THEMES } from '../../context/ThemeContext'
 import { useNavigate } from 'react-router-dom'
+import NancyLogo from '../NancyLogo'
 
 const Topbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
@@ -27,10 +28,12 @@ const Topbar = ({ onMenuClick }) => {
           className="menu-toggle">
           <FaBars />
         </button>
-        <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--dark)' }}>
-          <FaMobileAlt style={{ color: 'var(--primary)', marginRight: 8 }} />
-          NancyMobile
-        </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <NancyLogo size={38} />
+          <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--dark)' }}>
+            NancyMobile
+          </h2>
+        </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {/* Language switcher */}

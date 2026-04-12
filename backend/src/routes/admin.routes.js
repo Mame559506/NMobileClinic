@@ -245,12 +245,69 @@ router.delete('/payments/:id', authenticate, adminOnly, asyncHandler(async (req,
 // Delete user (admin only)
 router.delete('/users/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
     const { id } = req.params;
-    // Prevent deleting yourself
     if (id === req.user.id) {
         return res.status(400).json({ success: false, message: 'Cannot delete your own account' });
     }
     await query('DELETE FROM users WHERE id = $1', [id]);
     res.json({ success: true, message: 'User deleted' });
+}));
+
+// ── Parts Requests (admin) ───────────────────────────────────────────────────
+// Get all parts requests
+router.get('/parts-requests', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT pr.*, u.first_name, u.last_name, u.email as tech_email,
+               r.device_type
+        FROM parts_requests pr
+        JOIN users u ON pr.technician_id = u.id
+        LEFT JOIN repairs r ON pr.repair_id = r.id
+        ORDER BY pr.created_at DESC
+    `);
+    res.json({ success: true, requests: result.rows });
+}));
+
+// Approve or reject a parts request
+router.put('/parts-requests/:id', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const { status, admin_notes } = req.body; // status: 'approved' | 'rejected'
+    if (!['approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ success: false, message: 'status must be approved or rejected' });
+    }
+    const result = await query(
+        `UPDATE parts_requests SET status=$1, admin_notes=$2, updated_at=NOW() WHERE id=$3 RETURNING *`,
+        [status, admin_notes || null, req.params.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Request not found' });
+    res.json({ success: true, request: result.rows[0] });
+}));
+
+// ── Spare Parts CRUD (admin) ─────────────────────────────────────────────────
+router.get('/spare-parts', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const result = await query('SELECT * FROM spare_parts ORDER BY name');
+    res.json({ success: true, parts: result.rows });
+}));
+
+router.post('/spare-parts', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const { name, description, quantity, unit_price } = req.body;
+    if (!name) return res.status(400).json({ success: false, message: 'name is required' });
+    const result = await query(
+        `INSERT INTO spare_parts (name, description, quantity, unit_price, created_at) VALUES ($1,$2,$3,$4,NOW()) RETURNING *`,
+        [name, description || null, quantity || 0, unit_price || null]
+    );
+    res.status(201).json({ success: true, part: result.rows[0] });
+}));
+
+router.put('/spare-parts/:id', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const { name, description, quantity, unit_price } = req.body;
+    const result = await query(
+        `UPDATE spare_parts SET name=$1, description=$2, quantity=$3, unit_price=$4 WHERE id=$5 RETURNING *`,
+        [name, description, quantity, unit_price, req.params.id]
+    );
+    res.json({ success: true, part: result.rows[0] });
+}));
+
+router.delete('/spare-parts/:id', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    await query('DELETE FROM spare_parts WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
 }));
 
 module.exports = router;

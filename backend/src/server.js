@@ -79,7 +79,12 @@ const initDB = async () => {
     try {
         await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician'),('delivery_person') ON CONFLICT (name) DO NOTHING`);
         await query(`CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id UUID REFERENCES users(id), receiver_id UUID REFERENCES users(id), content TEXT NOT NULL, is_read BOOLEAN DEFAULT false, created_at TIMESTAMP DEFAULT NOW())`);
-        await query(`CREATE TABLE IF NOT EXISTS delivery_jobs (id SERIAL PRIMARY KEY, order_id INTEGER REFERENCES orders(id), assigned_to UUID REFERENCES users(id), status VARCHAR(50) DEFAULT 'pending', pickup_address TEXT, delivery_address TEXT, notes TEXT, completed_at TIMESTAMP, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+        await query(`CREATE TABLE IF NOT EXISTS delivery_jobs (id SERIAL PRIMARY KEY, order_id INTEGER REFERENCES orders(id), assigned_to UUID REFERENCES users(id), status VARCHAR(50) DEFAULT 'pending', job_type VARCHAR(50) DEFAULT 'delivery', pickup_address TEXT, delivery_address TEXT, notes TEXT, is_cod BOOLEAN DEFAULT false, cod_amount DECIMAL(10,2), payment_collected BOOLEAN DEFAULT false, payment_amount DECIMAL(10,2), completed_at TIMESTAMP, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
+        await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS job_type VARCHAR(50) DEFAULT 'delivery'`);
+        await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS is_cod BOOLEAN DEFAULT false`);
+        await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS cod_amount DECIMAL(10,2)`);
+        await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS payment_collected BOOLEAN DEFAULT false`);
+        await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS payment_amount DECIMAL(10,2)`);
         await query(`CREATE TABLE IF NOT EXISTS spare_parts (id SERIAL PRIMARY KEY, name VARCHAR(200) NOT NULL, description TEXT, quantity INTEGER DEFAULT 0, unit_price DECIMAL(10,2), created_at TIMESTAMP DEFAULT NOW())`);
         await query(`CREATE TABLE IF NOT EXISTS parts_requests (id SERIAL PRIMARY KEY, technician_id UUID REFERENCES users(id), part_name VARCHAR(200) NOT NULL, quantity INTEGER DEFAULT 1, repair_id INTEGER REFERENCES repairs(id), notes TEXT, admin_notes TEXT, status VARCHAR(50) DEFAULT 'pending', created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
         await query(`ALTER TABLE parts_requests ADD COLUMN IF NOT EXISTS admin_notes TEXT`);

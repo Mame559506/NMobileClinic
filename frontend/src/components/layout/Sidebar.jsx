@@ -40,6 +40,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     { to: '/admin/repairs', icon: <FaTools />, label: t('repairRequestsSidebar') },
     { to: '/admin/parts-requests', icon: <FaBoxOpen />, label: 'Parts Requests' },
     { to: '/admin/bank-settings', icon: <FaUniversity />, label: t('bankSettingsSidebar') },
+    { to: '/admin/delivery', icon: <FaTruck />, label: 'Delivery' },
     { to: '/chat', icon: <FaComments />, label: t('messages') || 'Messages' },
     { to: '/admin/profile', icon: <FaUser />, label: t('profile') },
   ]

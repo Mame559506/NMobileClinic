@@ -63,15 +63,22 @@ router.get('/jobs/active', isDelivery, verifiedDelivery, asyncHandler(async (req
 
 // Update job status
 router.put('/jobs/:id', isDelivery, verifiedDelivery, asyncHandler(async (req, res) => {
-    const { status, notes } = req.body;
+    const { status, notes, payment_collected, payment_amount } = req.body;
     const isCompleted = status === 'completed';
+
     const result = await query(`
-        UPDATE delivery_jobs SET status=$1, notes=COALESCE($2,notes),
-        completed_at = CASE WHEN $3 THEN NOW() ELSE NULL END,
-        updated_at=NOW()
-        WHERE id=$4 AND assigned_to=$5 RETURNING *
-    `, [status, notes, isCompleted, req.params.id, req.user.id]);
+        UPDATE delivery_jobs
+        SET status=$1,
+            notes=COALESCE($2, notes),
+            payment_collected=COALESCE($3, payment_collected),
+            payment_amount=COALESCE($4, payment_amount),
+            completed_at = CASE WHEN $5 THEN NOW() ELSE completed_at END,
+            updated_at=NOW()
+        WHERE id=$6 AND assigned_to=$7 RETURNING *
+    `, [status, notes, payment_collected, payment_amount, isCompleted, req.params.id, req.user.id]);
+
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Job not found' });
+
     // If completed, update order status to delivered
     if (isCompleted && result.rows[0].order_id) {
         await query(`UPDATE orders SET status='delivered', updated_at=NOW() WHERE id=$1`, [result.rows[0].order_id]);
@@ -96,12 +103,52 @@ router.get('/admin/jobs', isAdmin, asyncHandler(async (req, res) => {
 
 // Admin: assign delivery job
 router.post('/admin/jobs', isAdmin, asyncHandler(async (req, res) => {
-    const { order_id, assigned_to, pickup_address, delivery_address, notes } = req.body;
+    const { order_id, assigned_to, pickup_address, delivery_address, notes, job_type, is_cod, cod_amount } = req.body;
     const result = await query(`
-        INSERT INTO delivery_jobs (order_id, assigned_to, pickup_address, delivery_address, notes, status, created_at, updated_at)
-        VALUES ($1,$2,$3,$4,$5,'pending',NOW(),NOW()) RETURNING *
-    `, [order_id, assigned_to, pickup_address, delivery_address, notes]);
+        INSERT INTO delivery_jobs (order_id, assigned_to, pickup_address, delivery_address, notes, job_type, is_cod, cod_amount, status, created_at, updated_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending',NOW(),NOW()) RETURNING *
+    `, [order_id || null, assigned_to, pickup_address || null, delivery_address, notes || null,
+        job_type || 'delivery', is_cod || false, cod_amount || null]);
     res.status(201).json({ success: true, job: result.rows[0] });
+}));
+
+// Admin: update delivery job
+router.put('/admin/jobs/:id', isAdmin, asyncHandler(async (req, res) => {
+    const { assigned_to, status, notes, pickup_address, delivery_address, job_type, is_cod, cod_amount } = req.body;
+    const result = await query(`
+        UPDATE delivery_jobs SET
+            assigned_to=COALESCE($1, assigned_to),
+            status=COALESCE($2, status),
+            notes=COALESCE($3, notes),
+            pickup_address=COALESCE($4, pickup_address),
+            delivery_address=COALESCE($5, delivery_address),
+            job_type=COALESCE($6, job_type),
+            is_cod=COALESCE($7, is_cod),
+            cod_amount=COALESCE($8, cod_amount),
+            updated_at=NOW()
+        WHERE id=$9 RETURNING *
+    `, [assigned_to, status, notes, pickup_address, delivery_address, job_type, is_cod, cod_amount, req.params.id]);
+    res.json({ success: true, job: result.rows[0] });
+}));
+
+// Admin: delete delivery job
+router.delete('/admin/jobs/:id', isAdmin, asyncHandler(async (req, res) => {
+    await query('DELETE FROM delivery_jobs WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+}));
+
+// Admin: get delivery persons
+router.get('/admin/drivers', isAdmin, asyncHandler(async (req, res) => {
+    const result = await query(`
+        SELECT u.id, u.first_name, u.last_name, u.phone, u.is_verified, u.is_available,
+               COUNT(dj.id) FILTER (WHERE dj.status NOT IN ('completed','cancelled')) as active_jobs
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        LEFT JOIN delivery_jobs dj ON dj.assigned_to = u.id
+        WHERE r.name = 'delivery_person' AND u.is_active = true
+        GROUP BY u.id ORDER BY u.first_name
+    `);
+    res.json({ success: true, drivers: result.rows });
 }));
 
 module.exports = router;

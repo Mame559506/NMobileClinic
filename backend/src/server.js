@@ -258,5 +258,3 @@ app.listen(PORT, () => {
         try { await query('SELECT 1'); } catch (e) { console.log('DB ping failed:', e.message); }
     }, 4 * 60 * 1000);
 });
-    console.log(`📊 Health: http://localhost:${PORT}/api/health`);
-});

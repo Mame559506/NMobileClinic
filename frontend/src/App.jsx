@@ -109,7 +109,7 @@ const DeliveryRoute = ({ children }) => (
 )
 
 const ChatRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['technician', 'admin', 'manager', 'delivery_person']}>
+  <ProtectedRoute allowedRoles={['customer', 'technician', 'admin', 'manager', 'delivery_person']}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )

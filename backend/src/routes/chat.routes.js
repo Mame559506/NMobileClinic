@@ -3,7 +3,7 @@ const router = express.Router();
 const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 
-// Get all users the current user can chat with (customers, admin, delivery_person)
+// Get all users the current user can chat with
 router.get('/contacts', asyncHandler(async (req, res) => {
     const result = await query(`
         SELECT u.id, u.first_name, u.last_name, u.email, r.name as role,

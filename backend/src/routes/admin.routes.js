@@ -4,7 +4,7 @@ const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
 
-const isAdmin = authorize('admin', 'manager');
+const isAdmin = authorize('admin');
 const adminOnly = authorize('admin');
 
 // Dashboard stats

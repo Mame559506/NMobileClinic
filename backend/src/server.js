@@ -77,7 +77,7 @@ const initDB = async () => {
 
     // Seed default data
     try {
-        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician'),('delivery_person') ON CONFLICT (name) DO NOTHING`);
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('customer'),('technician'),('delivery_person') ON CONFLICT (name) DO NOTHING`);
         await query(`CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id UUID REFERENCES users(id), receiver_id UUID REFERENCES users(id), content TEXT NOT NULL, is_read BOOLEAN DEFAULT false, created_at TIMESTAMP DEFAULT NOW())`);
         await query(`CREATE TABLE IF NOT EXISTS delivery_jobs (id SERIAL PRIMARY KEY, order_id INTEGER REFERENCES orders(id), assigned_to UUID REFERENCES users(id), status VARCHAR(50) DEFAULT 'pending', job_type VARCHAR(50) DEFAULT 'delivery', pickup_address TEXT, delivery_address TEXT, notes TEXT, is_cod BOOLEAN DEFAULT false, cod_amount DECIMAL(10,2), payment_collected BOOLEAN DEFAULT false, payment_amount DECIMAL(10,2), completed_at TIMESTAMP, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
         await query(`ALTER TABLE delivery_jobs ADD COLUMN IF NOT EXISTS job_type VARCHAR(50) DEFAULT 'delivery'`);
@@ -178,7 +178,7 @@ app.get('/api/init', async (req, res) => {
     try {
         const bcrypt = require('bcryptjs');
         const { v4: uuidv4 } = require('uuid');
-        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
         await query(`INSERT INTO categories (name, slug) VALUES ('Cases','cases'),('Screen Protectors','screen-protectors'),('Chargers','chargers'),('Audio','audio'),('Power Banks','power-banks'),('Smart Watches','smart-watches'),('Repair Services','repair-services') ON CONFLICT (slug) DO NOTHING`);
         await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
         const hash = await bcrypt.hash('admin@123', 10);

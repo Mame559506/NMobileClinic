@@ -12,7 +12,7 @@ router.get('/contacts', asyncHandler(async (req, res) => {
         FROM users u
         JOIN roles r ON u.role_id = r.id
         WHERE u.id != $1 AND u.is_active = true
-          AND r.name IN ('customer','admin','manager','delivery_person','technician')
+          AND r.name IN ('customer','admin','delivery_person','technician')
         ORDER BY r.name, u.first_name
     `, [req.user.id]);
     res.json({ success: true, contacts: result.rows });

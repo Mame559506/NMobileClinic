@@ -4,12 +4,12 @@ const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 const { authorize } = require('../middlewares/auth.middleware');
 
-const isDelivery = authorize('delivery_person', 'admin', 'manager');
-const isAdmin = authorize('admin', 'manager');
+const isDelivery = authorize('delivery_person', 'admin');
+const isAdmin = authorize('admin');
 
 // Verified delivery person middleware
 const verifiedDelivery = asyncHandler(async (req, res, next) => {
-    if (req.user.role === 'admin' || req.user.role === 'manager') return next();
+    if (req.user.role === 'admin') return next();
     const result = await query('SELECT is_verified FROM users WHERE id = $1', [req.user.id]);
     if (!result.rows[0]?.is_verified) {
         return res.status(403).json({ success: false, message: 'Account must be verified before accessing delivery tasks.' });

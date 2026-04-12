@@ -57,14 +57,14 @@ export default function Chat() {
   }
 
   const roleColor = (role) => {
-    if (role === 'admin' || role === 'manager') return '#4361ee'
+    if (role === 'admin') return '#4361ee'
     if (role === 'technician') return '#f8961e'
     if (role === 'delivery_person') return '#28a745'
     return '#6c757d'
   }
 
   const roleLabel = (role) => {
-    if (role === 'admin' || role === 'manager') return 'Admin'
+    if (role === 'admin') return 'Admin'
     if (role === 'technician') return t('technician')
     if (role === 'delivery_person') return t('deliveryPerson') || 'Delivery'
     return t('customer')

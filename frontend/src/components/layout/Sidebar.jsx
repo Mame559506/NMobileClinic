@@ -13,7 +13,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { cart } = useCart()
   const { t } = useLanguage()
   const cartCount = cart?.items?.reduce((total, i) => total + i.quantity, 0) || 0
-  const isAdmin = user?.role === 'admin' || user?.role === 'manager'
+  const isAdmin = user?.role === 'admin'
   const isTech = user?.role === 'technician'
   const isDelivery = user?.role === 'delivery_person'
 

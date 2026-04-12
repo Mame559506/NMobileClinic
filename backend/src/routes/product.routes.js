@@ -50,7 +50,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
     res.json({ success: true, product: result.rows[0], relatedProducts: related.rows });
 }));
 
-router.post('/', authenticate, authorize('admin', 'manager'), upload.single('product_image'), asyncHandler(async (req, res) => {
+router.post('/', authenticate, authorize('admin'), upload.single('product_image'), asyncHandler(async (req, res) => {
     const { name, description, short_description, price, stock_quantity, category_id, sku, brand, is_featured, image_url } = req.body;
     const imgUrl = getImageUrl(req.file, image_url);
     const result = await query(
@@ -60,7 +60,7 @@ router.post('/', authenticate, authorize('admin', 'manager'), upload.single('pro
     res.status(201).json({ success: true, message: 'Product created', product: result.rows[0] });
 }));
 
-router.put('/:id', authenticate, authorize('admin', 'manager'), upload.single('product_image'), asyncHandler(async (req, res) => {
+router.put('/:id', authenticate, authorize('admin'), upload.single('product_image'), asyncHandler(async (req, res) => {
     const allowed = ['name','description','short_description','price','stock_quantity','category_id','sku','brand','is_featured','is_active','image_url'];
     const updates = {};
     for (const key of allowed) { if (req.body[key] !== undefined) updates[key] = req.body[key]; }

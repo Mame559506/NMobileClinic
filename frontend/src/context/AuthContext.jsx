@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
         toast.success('Login successful!')
         
         // Redirect based on role
-        if (user.role === 'admin' || user.role === 'manager') {
+        if (user.role === 'admin') {
           navigate('/admin/dashboard')
         } else {
           navigate('/dashboard')
@@ -87,7 +87,7 @@ export const AuthProvider = ({ children }) => {
         
         toast.success('Registration successful!')
         // Redirect based on role
-        if (user.role === 'admin' || user.role === 'manager') {
+        if (user.role === 'admin') {
           navigate('/admin/dashboard')
         } else if (user.role === 'technician') {
           navigate('/technician/dashboard')

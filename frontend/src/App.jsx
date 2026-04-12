@@ -7,6 +7,7 @@ import LoadingSpinner from './components/common/LoadingSpinner'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import ForgotPassword from './pages/auth/ForgotPassword'
+import Landing from './pages/Landing'
 
 // Customer Pages
 import CustomerDashboard from './pages/customer/Dashboard'
@@ -56,7 +57,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (loading) return <LoadingSpinner />
   if (!user) return <Navigate to="/login" replace />
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    if (user.role === 'admin' || user.role === 'manager') return <Navigate to="/admin/dashboard" replace />
+    if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />
     if (user.role === 'technician') return <Navigate to="/technician/dashboard" replace />
     if (user.role === 'delivery_person') return <Navigate to="/delivery/dashboard" replace />
     return <Navigate to="/dashboard" replace />
@@ -68,7 +69,7 @@ const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
   if (loading) return <LoadingSpinner />
   if (user) {
-    if (user.role === 'admin' || user.role === 'manager') return <Navigate to="/admin/dashboard" replace />
+    if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />
     if (user.role === 'technician') return <Navigate to="/technician/dashboard" replace />
     if (user.role === 'delivery_person') return <Navigate to="/delivery/dashboard" replace />
     return <Navigate to="/dashboard" replace />
@@ -92,26 +93,26 @@ const VerifiedRoute = ({ children }) => {
   return <Layout>{children}</Layout>
 }
 
-const AdminRoute = ({ children, roles = ['admin', 'manager'] }) => (
+const AdminRoute = ({ children, roles = ['admin'] }) => (
   <ProtectedRoute allowedRoles={roles}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )
 
 const TechRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['technician', 'admin', 'manager']}>
+  <ProtectedRoute allowedRoles={['technician', 'admin']}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )
 
 const DeliveryRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['delivery_person', 'admin', 'manager']}>
+  <ProtectedRoute allowedRoles={['delivery_person', 'admin']}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )
 
 const ChatRoute = ({ children }) => (
-  <ProtectedRoute allowedRoles={['customer', 'technician', 'admin', 'manager', 'delivery_person']}>
+  <ProtectedRoute allowedRoles={['customer', 'technician', 'admin', 'delivery_person']}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )
@@ -120,6 +121,8 @@ function App() {
   return (
     <Routes>
       {/* Public */}
+      <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+      <Route path="/landing" element={<Landing />} />
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
@@ -128,7 +131,6 @@ function App() {
       <Route path="/track/:orderNumber" element={<CustomerRoute><TrackOrder /></CustomerRoute>} />
 
       {/* Customer */}
-      <Route path="/" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />
       <Route path="/dashboard" element={<CustomerRoute><CustomerDashboard /></CustomerRoute>} />
       <Route path="/products" element={<CustomerRoute><Products /></CustomerRoute>} />
       <Route path="/products/:id" element={<CustomerRoute><ProductDetails /></CustomerRoute>} />

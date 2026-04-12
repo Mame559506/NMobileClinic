@@ -9,7 +9,7 @@ const Topbar = ({ onMenuClick }) => {
   const navigate = useNavigate()
   const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : 'U'
 
-  const profilePath = user?.role === 'admin' || user?.role === 'manager'
+  const profilePath = user?.role === 'admin'
     ? '/admin/profile'
     : user?.role === 'technician'
     ? '/technician/profile'
@@ -60,7 +60,7 @@ const Topbar = ({ onMenuClick }) => {
           <div className="topbar-user-name">
             <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.firstName} {user?.lastName}</div>
             <div style={{ fontSize: 12, color: 'var(--gray)' }}>
-              {user?.role === 'admin' ? t('administrator') : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? t('technician') : user?.role === 'delivery_person' ? (t('deliveryPerson') || 'Delivery') : t('customer')}
+              {user?.role === 'admin' ? t('administrator') : user?.role === 'technician' ? t('technician') : user?.role === 'delivery_person' ? (t('deliveryPerson') || 'Delivery') : t('customer')}
             </div>
           </div>
         </div>

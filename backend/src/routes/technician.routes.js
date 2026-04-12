@@ -4,11 +4,11 @@ const asyncHandler = require('express-async-handler');
 const { query } = require('../config/database');
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
 
-const isTech = authorize('technician', 'admin', 'manager');
+const isTech = authorize('technician', 'admin');
 
 // Middleware: verified technicians only
 const verifiedTech = asyncHandler(async (req, res, next) => {
-    if (req.user.role === 'admin' || req.user.role === 'manager') return next();
+    if (req.user.role === 'admin') return next();
     const result = await query('SELECT is_verified FROM users WHERE id = $1', [req.user.id]);
     if (!result.rows[0]?.is_verified) {
         return res.status(403).json({ success: false, message: 'Your account must be verified by an admin before you can access repair tasks.' });

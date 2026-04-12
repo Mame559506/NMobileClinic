@@ -1,11 +1,13 @@
 import { FaBars, FaMobileAlt, FaSignOutAlt, FaGlobe } from 'react-icons/fa'
 import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
+import { useTheme, THEMES } from '../../context/ThemeContext'
 import { useNavigate } from 'react-router-dom'
 
 const Topbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
   const { lang, switchLang, t } = useLanguage()
+  const { theme, switchTheme } = useTheme()
   const navigate = useNavigate()
   const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : 'U'
 
@@ -47,6 +49,22 @@ const Topbar = ({ onMenuClick }) => {
                 fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
               }}>
               {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Theme switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#f5f5f5', borderRadius: 8, padding: '4px 6px' }}>
+          {Object.entries(THEMES).map(([key, val]) => (
+            <button key={key} onClick={() => switchTheme(key)} title={val.label}
+              style={{
+                background: theme === key ? 'var(--primary)' : 'transparent',
+                border: theme === key ? 'none' : '1px solid #ddd',
+                borderRadius: 6, width: 28, height: 28, cursor: 'pointer',
+                fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}>
+              {val.icon}
             </button>
           ))}
         </div>

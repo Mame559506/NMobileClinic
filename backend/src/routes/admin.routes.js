@@ -73,9 +73,16 @@ router.get('/analytics', authenticate, isAdmin, asyncHandler(async (req, res) =>
 
 // Get all users
 router.get('/users', authenticate, adminOnly, asyncHandler(async (req, res) => {
-    const result = await query(
-        'SELECT u.*, r.name as role FROM users u JOIN roles r ON u.role_id = r.id ORDER BY u.created_at DESC'
-    );
+    const result = await query(`
+        SELECT u.id, u.email, u.first_name, u.last_name, u.phone, u.address,
+               u.is_active, u.is_verified, u.verification_status,
+               u.national_id, u.fan_number, u.profile_picture, u.national_id_file,
+               u.created_at, u.updated_at, u.role_id,
+               r.name as role
+        FROM users u
+        JOIN roles r ON u.role_id = r.id
+        ORDER BY u.created_at DESC
+    `);
     res.json({ success: true, users: result.rows });
 }));
 

@@ -24,7 +24,9 @@ export default function ManageUsers() {
   const fetchUsers = () => {
     api.get('/admin/users').then(r => {
       if (r.data.success) setUsers(r.data.users || [])
-    }).catch(() => {}).finally(() => setLoading(false))
+    }).catch(err => {
+      console.error('Failed to load users:', err.response?.data || err.message)
+    }).finally(() => setLoading(false))
   }
 
   const toggleStatus = async (id, isActive) => {

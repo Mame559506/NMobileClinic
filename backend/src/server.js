@@ -252,4 +252,11 @@ app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📚 API: http://localhost:${PORT}/api`);
     console.log(`📊 Health: http://localhost:${PORT}/api/health`);
+
+    // Keep DB alive — ping every 4 minutes to prevent Railway sleep
+    setInterval(async () => {
+        try { await query('SELECT 1'); } catch (e) { console.log('DB ping failed:', e.message); }
+    }, 4 * 60 * 1000);
+});
+    console.log(`📊 Health: http://localhost:${PORT}/api/health`);
 });

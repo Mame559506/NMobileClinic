@@ -6,8 +6,18 @@ const { authenticate, authorize } = require('../middlewares/auth.middleware');
 
 const isTech = authorize('technician', 'admin', 'manager');
 
+// Middleware: verified technicians only
+const verifiedTech = asyncHandler(async (req, res, next) => {
+    if (req.user.role === 'admin' || req.user.role === 'manager') return next();
+    const result = await query('SELECT is_verified FROM users WHERE id = $1', [req.user.id]);
+    if (!result.rows[0]?.is_verified) {
+        return res.status(403).json({ success: false, message: 'Your account must be verified by an admin before you can access repair tasks.' });
+    }
+    next();
+});
+
 // Get technician repairs (assigned + unassigned)
-router.get('/repairs', authenticate, isTech, asyncHandler(async (req, res) => {
+router.get('/repairs', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
     const result = await query(`
         SELECT r.*, u.email as customer_email, u.first_name, u.last_name,
                t.first_name as tech_first, t.last_name as tech_last
@@ -21,7 +31,7 @@ router.get('/repairs', authenticate, isTech, asyncHandler(async (req, res) => {
 }));
 
 // Get stats for technician dashboard
-router.get('/stats', authenticate, isTech, asyncHandler(async (req, res) => {
+router.get('/stats', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
     const [assigned, inProgress, completed, pending] = await Promise.all([
         query('SELECT COUNT(*) as total FROM repairs WHERE assigned_to = $1', [req.user.id]),
         query("SELECT COUNT(*) as total FROM repairs WHERE assigned_to = $1 AND status = 'in-progress'", [req.user.id]),
@@ -40,7 +50,7 @@ router.get('/stats', authenticate, isTech, asyncHandler(async (req, res) => {
 }));
 
 // Claim repair
-router.post('/repairs/:id/claim', authenticate, isTech, asyncHandler(async (req, res) => {
+router.post('/repairs/:id/claim', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
     const result = await query(
         `UPDATE repairs SET assigned_to = $1, status = 'diagnosed', updated_at = NOW()
          WHERE id = $2 AND (assigned_to IS NULL OR assigned_to = $1) RETURNING *`,
@@ -50,8 +60,8 @@ router.post('/repairs/:id/claim', authenticate, isTech, asyncHandler(async (req,
     res.json({ success: true, repair: result.rows[0] });
 }));
 
-// Update repair status/notes/cost  fixed SQL injection
-router.put('/repairs/:id', authenticate, isTech, asyncHandler(async (req, res) => {
+// Update repair status/notes/cost
+router.put('/repairs/:id', authenticate, isTech, verifiedTech, asyncHandler(async (req, res) => {
     const { status, notes, estimated_cost } = req.body;
     const isCompleted = status === 'completed';
     const result = await query(

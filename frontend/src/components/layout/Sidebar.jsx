@@ -40,7 +40,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const techLinks = [
     { to: '/technician/dashboard', icon: <FaTachometerAlt />, label: t('dashboard') },
     { to: '/technician/repairs', icon: <FaTools />, label: t('repairAssignmentsSidebar') },
-    { to: '/profile', icon: <FaUser />, label: t('profile') },
+    { to: '/technician/profile', icon: <FaUser />, label: t('profile') },
   ]
 
   const links = isAdmin ? adminLinks : user?.role === 'technician' ? techLinks : customerLinks

@@ -34,6 +34,7 @@ import BankSettings from './pages/admin/BankSettings'
 import AdminProfile from './pages/admin/Profile'
 import TechDashboard from './pages/technician/Dashboard'
 import TechRepairs from './pages/technician/Repairs'
+import TechProfile from './pages/technician/Profile'
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth()
@@ -123,6 +124,7 @@ function App() {
       {/* Technician */}
       <Route path="/technician/dashboard" element={<TechRoute><TechDashboard /></TechRoute>} />
       <Route path="/technician/repairs" element={<TechRoute><TechRepairs /></TechRoute>} />
+      <Route path="/technician/profile" element={<TechRoute><TechProfile /></TechRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

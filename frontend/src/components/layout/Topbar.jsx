@@ -11,6 +11,8 @@ const Topbar = ({ onMenuClick }) => {
 
   const profilePath = user?.role === 'admin' || user?.role === 'manager'
     ? '/admin/profile'
+    : user?.role === 'technician'
+    ? '/technician/profile'
     : '/profile'
 
   return (

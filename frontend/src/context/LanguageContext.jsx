@@ -109,7 +109,7 @@ const translations = {
     inventoryTitle: 'Inventory', manageProducts: 'Manage Products',
     needsRestocking: 'product(s) need restocking.',
     bankSettings: 'Bank Settings', bankSettingsDesc: 'Manage bank accounts shown to customers during checkout.',
-    bankName: 'Bank Name', saveChanges: 'Save',
+    bankName: 'Bank Name', saveChanges: 'Save', addAccount: 'Add Account',
     adminProfile: 'Admin Profile', updateProfile: 'Update Profile',
     administrator: 'Administrator',
     // Technician
@@ -235,7 +235,7 @@ const translations = {
     inventoryTitle: 'Kuusaa', manageProducts: 'Meeshaalee Bulchi',
     needsRestocking: 'meeshaan(oonni) kuusaa barbaadu.',
     bankSettings: 'Qindaa\'ina Baankii', bankSettingsDesc: 'Herreega baankii bittoota argisiisu bulchi.',
-    bankName: 'Maqaa Baankii', saveChanges: 'Kuusi',
+    bankName: 'Maqaa Baankii', saveChanges: 'Kuusi', addAccount: 'Herreega Ida\'i',
     adminProfile: 'Profaayilii Bulchiinsaa', updateProfile: 'Profaayilii Haaromsi',
     administrator: 'Bulchiinsaa',
     // Technician
@@ -361,7 +361,7 @@ const translations = {
     inventoryTitle: 'ክምችት', manageProducts: 'ምርቶችን ያስተዳድሩ',
     needsRestocking: 'ምርት(ቶች) ክምችት ያስፈልጋቸዋል።',
     bankSettings: 'የባንክ ቅንብሮች', bankSettingsDesc: 'ለደንበኞች በክፍያ ጊዜ የሚታዩ የባንክ ሂሳቦችን ያስተዳድሩ።',
-    bankName: 'የባንክ ስም', saveChanges: 'አስቀምጥ',
+    bankName: 'የባንክ ስም', saveChanges: 'አስቀምጥ', addAccount: 'ሂሳብ ጨምር',
     adminProfile: 'የአስተዳዳሪ መገለጫ', updateProfile: 'መገለጫ ያዘምኑ',
     administrator: 'አስተዳዳሪ',
     // Technician

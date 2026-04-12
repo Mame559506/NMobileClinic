@@ -198,6 +198,27 @@ router.get('/bank-settings', authenticate, isAdmin, asyncHandler(async (req, res
     res.json({ success: true, banks: result.rows });
 }));
 
+// Add new bank setting
+router.post('/bank-settings', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const { bank_name, account_number, account_name, bank_key } = req.body;
+    if (!bank_name || !account_number || !account_name) {
+        return res.status(400).json({ success: false, message: 'bank_name, account_number and account_name are required' });
+    }
+    const key = bank_key || bank_name.toLowerCase().replace(/\s+/g, '_');
+    const result = await query(
+        'INSERT INTO bank_settings (bank_name, bank_key, account_number, account_name, is_active, created_at, updated_at) VALUES ($1,$2,$3,$4,true,NOW(),NOW()) RETURNING *',
+        [bank_name, key, account_number, account_name]
+    );
+    res.status(201).json({ success: true, bank: result.rows[0] });
+}));
+
+// Delete bank setting
+router.delete('/bank-settings/:id', authenticate, isAdmin, asyncHandler(async (req, res) => {
+    const result = await query('DELETE FROM bank_settings WHERE id = $1 RETURNING id', [req.params.id]);
+    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Bank not found' });
+    res.json({ success: true, message: 'Bank deleted' });
+}));
+
 // Update bank setting
 router.put('/bank-settings/:id', authenticate, isAdmin, asyncHandler(async (req, res) => {
     const { bank_name, account_number, account_name, is_active } = req.body;

@@ -14,6 +14,7 @@ const translations = {
     welcome: 'Welcome', signIn: 'Sign In', register: 'Register',
     adminDashboard: 'Admin Dashboard', users: 'Users', settings: 'Settings',
     reports: 'Reports & Analytics', inventory: 'Inventory', language: 'Language',
+    messages: 'Messages', deliveryPerson: 'Delivery Person',
     // Auth
     loginTitle: 'Login to Your Account', createAccount: 'Create New Account',
     emailAddress: 'Email Address', firstName: 'First Name', lastName: 'Last Name',
@@ -140,6 +141,7 @@ const translations = {
     welcome: 'Baga Nagaan Dhuftan', signIn: 'Seeni', register: 'Galmeessi',
     adminDashboard: 'Gabatee Bulchiinsaa', users: 'Fayyadamtoota', settings: 'Qindaa\'ina',
     reports: 'Gabaasaa fi Xiinxala', inventory: 'Kuusaa', language: 'Afaan',
+    messages: 'Ergaalee', deliveryPerson: 'Nama Geejjibaa',
     // Auth
     loginTitle: 'Herrega Kee Seeni', createAccount: 'Herrega Haaraa Bani',
     emailAddress: 'Teessoo Imeelii', firstName: 'Maqaa Duraa', lastName: 'Maqaa Maatii',
@@ -266,6 +268,7 @@ const translations = {
     welcome: 'እንኳን ደህና መጡ', signIn: 'ግባ', register: 'ተመዝገብ',
     adminDashboard: 'የአስተዳዳሪ ዳሽቦርድ', users: 'ተጠቃሚዎች', settings: 'ቅንብሮች',
     reports: 'ሪፖርቶች እና ትንታኔ', inventory: 'ክምችት', language: 'ቋንቋ',
+    messages: 'መልዕክቶች', deliveryPerson: 'አቅራቢ',
     // Auth
     loginTitle: 'ወደ መለያዎ ይግቡ', createAccount: 'አዲስ መለያ ይፍጠሩ',
     emailAddress: 'የኢሜይል አድራሻ', firstName: 'የመጀመሪያ ስም', lastName: 'የአባት ስም',

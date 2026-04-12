@@ -35,6 +35,12 @@ import AdminProfile from './pages/admin/Profile'
 import TechDashboard from './pages/technician/Dashboard'
 import TechRepairs from './pages/technician/Repairs'
 import TechProfile from './pages/technician/Profile'
+import Chat from './pages/chat/Chat'
+import DeliveryDashboard from './pages/delivery/Dashboard'
+import DeliveryTasks from './pages/delivery/Tasks'
+import ActiveJob from './pages/delivery/ActiveJob'
+import DeliveryHistory from './pages/delivery/History'
+import DeliveryProfile from './pages/delivery/Profile'
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading } = useAuth()
@@ -43,6 +49,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
     if (user.role === 'admin' || user.role === 'manager') return <Navigate to="/admin/dashboard" replace />
     if (user.role === 'technician') return <Navigate to="/technician/dashboard" replace />
+    if (user.role === 'delivery_person') return <Navigate to="/delivery/dashboard" replace />
     return <Navigate to="/dashboard" replace />
   }
   return children
@@ -54,6 +61,7 @@ const PublicRoute = ({ children }) => {
   if (user) {
     if (user.role === 'admin' || user.role === 'manager') return <Navigate to="/admin/dashboard" replace />
     if (user.role === 'technician') return <Navigate to="/technician/dashboard" replace />
+    if (user.role === 'delivery_person') return <Navigate to="/delivery/dashboard" replace />
     return <Navigate to="/dashboard" replace />
   }
   return children
@@ -83,6 +91,18 @@ const AdminRoute = ({ children, roles = ['admin', 'manager'] }) => (
 
 const TechRoute = ({ children }) => (
   <ProtectedRoute allowedRoles={['technician', 'admin', 'manager']}>
+    <Layout>{children}</Layout>
+  </ProtectedRoute>
+)
+
+const DeliveryRoute = ({ children }) => (
+  <ProtectedRoute allowedRoles={['delivery_person', 'admin', 'manager']}>
+    <Layout>{children}</Layout>
+  </ProtectedRoute>
+)
+
+const ChatRoute = ({ children }) => (
+  <ProtectedRoute allowedRoles={['technician', 'admin', 'manager', 'delivery_person']}>
     <Layout>{children}</Layout>
   </ProtectedRoute>
 )
@@ -125,6 +145,16 @@ function App() {
       <Route path="/technician/dashboard" element={<TechRoute><TechDashboard /></TechRoute>} />
       <Route path="/technician/repairs" element={<TechRoute><TechRepairs /></TechRoute>} />
       <Route path="/technician/profile" element={<TechRoute><TechProfile /></TechRoute>} />
+
+      {/* Chat */}
+      <Route path="/chat" element={<ChatRoute><Chat /></ChatRoute>} />
+
+      {/* Delivery Person */}
+      <Route path="/delivery/dashboard" element={<DeliveryRoute><DeliveryDashboard /></DeliveryRoute>} />
+      <Route path="/delivery/tasks" element={<DeliveryRoute><DeliveryTasks /></DeliveryRoute>} />
+      <Route path="/delivery/active" element={<DeliveryRoute><ActiveJob /></DeliveryRoute>} />
+      <Route path="/delivery/history" element={<DeliveryRoute><DeliveryHistory /></DeliveryRoute>} />
+      <Route path="/delivery/profile" element={<DeliveryRoute><DeliveryProfile /></DeliveryRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

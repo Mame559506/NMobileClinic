@@ -18,6 +18,8 @@ const adminRoutes = require('./routes/admin.routes');
 const repairRoutes = require('./routes/repair.routes');
 const technicianRoutes = require('./routes/technician.routes');
 const setupRoutes = require('./routes/setup.routes');
+const chatRoutes = require('./routes/chat.routes');
+const deliveryRoutes = require('./routes/delivery.routes');
 
 // Import middleware
 const { errorHandler } = require('./middlewares/error.middleware');
@@ -75,7 +77,9 @@ const initDB = async () => {
 
     // Seed default data
     try {
-        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician') ON CONFLICT (name) DO NOTHING`);
+        await query(`INSERT INTO roles (name) VALUES ('admin'),('manager'),('customer'),('technician'),('delivery_person') ON CONFLICT (name) DO NOTHING`);
+        await query(`CREATE TABLE IF NOT EXISTS messages (id SERIAL PRIMARY KEY, sender_id UUID REFERENCES users(id), receiver_id UUID REFERENCES users(id), content TEXT NOT NULL, is_read BOOLEAN DEFAULT false, created_at TIMESTAMP DEFAULT NOW())`);
+        await query(`CREATE TABLE IF NOT EXISTS delivery_jobs (id SERIAL PRIMARY KEY, order_id INTEGER REFERENCES orders(id), assigned_to UUID REFERENCES users(id), status VARCHAR(50) DEFAULT 'pending', pickup_address TEXT, delivery_address TEXT, notes TEXT, completed_at TIMESTAMP, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())`);
         await query(`INSERT INTO categories (name, slug) VALUES ('Cases','cases'),('Screen Protectors','screen-protectors'),('Chargers','chargers'),('Audio','audio'),('Power Banks','power-banks'),('Smart Watches','smart-watches'),('Repair Services','repair-services') ON CONFLICT (slug) DO NOTHING`);
         await query(`INSERT INTO bank_settings (bank_key, bank_name, account_number, account_name, is_active) VALUES ('cbe','Commercial Bank of Ethiopia','1000123456789','Nancy Mobile PLC',true),('abyssinia','Bank of Abyssinia','0123456789','Nancy Mobile PLC',true),('awash','Awash Bank','0123456789012','Nancy Mobile PLC',true) ON CONFLICT (bank_key) DO NOTHING`);
         console.log('✅ Database seeded successfully');
@@ -213,6 +217,8 @@ app.get('/api/bank-settings', async (req, res) => {
 });
 app.use('/api/repairs', authenticate, repairRoutes);
 app.use('/api/technician', authenticate, technicianRoutes);
+app.use('/api/chat', authenticate, chatRoutes);
+app.use('/api/delivery', authenticate, deliveryRoutes);
 app.use('/api/setup', setupRoutes);
 
 // Error handling middleware

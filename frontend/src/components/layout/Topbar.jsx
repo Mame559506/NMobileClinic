@@ -13,6 +13,8 @@ const Topbar = ({ onMenuClick }) => {
     ? '/admin/profile'
     : user?.role === 'technician'
     ? '/technician/profile'
+    : user?.role === 'delivery_person'
+    ? '/delivery/profile'
     : '/profile'
 
   return (
@@ -58,7 +60,7 @@ const Topbar = ({ onMenuClick }) => {
           <div className="topbar-user-name">
             <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.firstName} {user?.lastName}</div>
             <div style={{ fontSize: 12, color: 'var(--gray)' }}>
-              {user?.role === 'admin' ? t('administrator') : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? t('technician') : t('customer')}
+              {user?.role === 'admin' ? t('administrator') : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? t('technician') : user?.role === 'delivery_person' ? (t('deliveryPerson') || 'Delivery') : t('customer')}
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaMoneyCheckAlt, FaCheck, FaTimes, FaDownload, FaEye, FaFileImage, FaTrash } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -8,6 +9,7 @@ export default function PaymentVerification() {
   const [loading, setLoading] = useState(true)
   const [preview, setPreview] = useState(null)
   const [filter, setFilter] = useState('all')
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/admin/payments').then(r => {
@@ -47,7 +49,7 @@ export default function PaymentVerification() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaMoneyCheckAlt style={{ marginRight: 8, color: 'var(--primary)' }} />Payments Verification</h2>
+      <h2 style={{ marginBottom: 20 }}><FaMoneyCheckAlt style={{ marginRight: 8, color: 'var(--primary)' }} />{t('paymentsVerification')}</h2>
 
       {/* Receipt preview modal */}
       {preview && (
@@ -72,7 +74,7 @@ export default function PaymentVerification() {
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        {[['all','All'], ['pending','Pending'], ['completed','Approved'], ['rejected','Rejected']].map(([val, label]) => (
+        {[['all', t('all')], ['pending', t('pending')], ['completed', t('approved')], ['rejected', t('rejected')]].map(([val, label]) => (
           <button key={val} onClick={() => setFilter(val)}
             style={{ padding: '8px 16px', borderRadius: 6, border: '1px solid', fontSize: 13, cursor: 'pointer',
               background: filter === val ? 'var(--primary)' : 'white',
@@ -89,13 +91,13 @@ export default function PaymentVerification() {
         <div className="table-responsive">
           <table className="data-table">
             <thead>
-              <tr><th>Order</th><th>Customer</th><th>Amount</th><th>Bank</th><th>Transaction ID</th><th>Receipt</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+              <tr><th>{t('order')}</th><th>{t('customer')}</th><th>{t('amount')}</th><th>{t('bank')}</th><th>{t('transactionId')}</th><th>{t('receipt')}</th><th>{t('status')}</th><th>{t('date')}</th><th>{t('actions')}</th></tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 30 }}>Loading...</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 30 }}>{t('loading')}</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 30, color: 'var(--gray)' }}>No payments found.</td></tr>
+                <tr><td colSpan="9" style={{ textAlign: 'center', padding: 30, color: 'var(--gray)' }}>{t('noPaymentsFound')}</td></tr>
               ) : filtered.map(p => (
                 <tr key={p.id}>
                   <td>{p.order_number || '#' + p.order_id}</td>
@@ -119,7 +121,7 @@ export default function PaymentVerification() {
                           <FaDownload />
                         </button>
                       </div>
-                    ) : <span style={{ color: 'var(--gray)', fontSize: 12 }}>No receipt</span>}
+                    ) : <span style={{ color: 'var(--gray)', fontSize: 12 }}>{t('noReceipt')}</span>}
                   </td>
                   <td><span className={statusClass(p.status)}>{p.status}</span></td>
                   <td style={{ fontSize: 12 }}>{new Date(p.created_at).toLocaleDateString()}</td>

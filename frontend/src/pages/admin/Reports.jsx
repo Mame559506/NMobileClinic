@@ -5,6 +5,7 @@ import {
   Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, ArcElement, Title, Tooltip, Legend
 } from 'chart.js'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, ArcElement, Title, Tooltip, Legend)
@@ -26,6 +27,7 @@ export default function Reports() {
   const [stats, setStats] = useState(null)
   const [analytics, setAnalytics] = useState(null)
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     Promise.all([
@@ -37,7 +39,7 @@ export default function Reports() {
     }).catch(() => {}).finally(() => setLoading(false))
   }, [])
 
-  if (loading) return <div className="page"><p>Loading analytics...</p></div>
+  if (loading) return <div className="page"><p>{t('loading')}</p></div>
 
   const revenueChart = {
     labels: analytics?.revenueByMonth?.map(r => r.month) || [],
@@ -112,15 +114,14 @@ export default function Reports() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaChartBar style={{ marginRight: 8, color: 'var(--primary)' }} />Reports & Analytics</h2>
+      <h2 style={{ marginBottom: 20 }}><FaChartBar style={{ marginRight: 8, color: 'var(--primary)' }} />{t('reportsAnalytics')}</h2>
 
-      {/* Summary stats */}
       <div className="stats-grid" style={{ marginBottom: 24 }}>
         {[
-          { label: 'Total Revenue', value: `ETB ${parseFloat(stats?.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'success' },
-          { label: 'Total Orders', value: stats?.orders || 0, icon: <FaShoppingBag />, color: 'primary' },
-          { label: 'Total Users', value: stats?.users || 0, icon: <FaUsers />, color: 'warning' },
-          { label: 'Repair Requests', value: stats?.repairs || 0, icon: <FaTools />, color: 'danger' },
+          { label: t('totalRevenue'), value: `ETB ${parseFloat(stats?.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'success' },
+          { label: t('totalOrders'), value: stats?.orders || 0, icon: <FaShoppingBag />, color: 'primary' },
+          { label: t('totalUsers'), value: stats?.users || 0, icon: <FaUsers />, color: 'warning' },
+          { label: t('repairRequests'), value: stats?.repairs || 0, icon: <FaTools />, color: 'danger' },
         ].map((s, i) => (
           <div className="stat-card" key={i}>
             <div className={`stat-icon ${s.color}`}>{s.icon}</div>
@@ -132,11 +133,11 @@ export default function Reports() {
       {/* Row 1: Revenue + Orders over time */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
         <div className="card">
-          <h4 style={{ marginBottom: 16 }}>Revenue (Last 6 Months)</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('revenueLastMonths')}</h4>
           <Line data={revenueChart} options={chartOpts()} />
         </div>
         <div className="card">
-          <h4 style={{ marginBottom: 16 }}>Orders (Last 6 Months)</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('ordersLastMonths')}</h4>
           <Line data={ordersChart} options={chartOpts()} />
         </div>
       </div>
@@ -144,11 +145,11 @@ export default function Reports() {
       {/* Row 2: Daily revenue + Top products */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
         <div className="card">
-          <h4 style={{ marginBottom: 16 }}>Daily Revenue (Last 7 Days)</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('dailyRevenue')}</h4>
           <Bar data={dailyRevenueChart} options={chartOpts()} />
         </div>
         <div className="card">
-          <h4 style={{ marginBottom: 16 }}>Top 5 Products by Sales</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('topProducts')}</h4>
           <Bar data={topProductsChart} options={{ ...chartOpts(), indexAxis: 'y' }} />
         </div>
       </div>
@@ -156,26 +157,25 @@ export default function Reports() {
       {/* Row 3: Doughnut charts */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
         <div className="card" style={{ textAlign: 'center' }}>
-          <h4 style={{ marginBottom: 16 }}>Orders by Status</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('ordersByStatus')}</h4>
           <Doughnut data={orderStatusChart} options={doughnutOpts} />
         </div>
         <div className="card" style={{ textAlign: 'center' }}>
-          <h4 style={{ marginBottom: 16 }}>Users by Role</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('usersByRole')}</h4>
           <Pie data={userRoleChart} options={doughnutOpts} />
         </div>
         <div className="card" style={{ textAlign: 'center' }}>
-          <h4 style={{ marginBottom: 16 }}>Repairs by Status</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('repairsByStatus')}</h4>
           <Doughnut data={repairStatusChart} options={doughnutOpts} />
         </div>
       </div>
 
-      {/* Payment methods table */}
       {analytics?.paymentsByMethod?.length > 0 && (
         <div className="card">
-          <h4 style={{ marginBottom: 16 }}>Payment Methods Summary</h4>
+          <h4 style={{ marginBottom: 16 }}>{t('paymentMethodsSummary')}</h4>
           <table className="data-table">
             <thead>
-              <tr><th>Method</th><th>Transactions</th><th>Total Revenue</th></tr>
+              <tr><th>{t('paymentMethod')}</th><th>{t('transactions')}</th><th>{t('totalRevenue')}</th></tr>
             </thead>
             <tbody>
               {analytics.paymentsByMethod.map((p, i) => (

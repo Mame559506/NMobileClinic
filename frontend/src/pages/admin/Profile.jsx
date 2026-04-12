@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { FaUser, FaSave, FaCamera, FaLock } from 'react-icons/fa'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
 import toast from 'react-hot-toast'
 import api from '../../services/api'
 
 export default function AdminProfile() {
   const { user, checkAuth } = useAuth()
+  const { t } = useLanguage()
   const [profile, setProfile] = useState(null)
   const [nameForm, setNameForm] = useState({ first_name: '', last_name: '', email: '' })
   const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
@@ -57,7 +59,7 @@ export default function AdminProfile() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaUser style={{ marginRight: 8, color: 'var(--primary)' }} />Admin Profile</h2>
+      <h2 style={{ marginBottom: 20 }}><FaUser style={{ marginRight: 8, color: 'var(--primary)' }} />{t('adminProfile')}</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
 
         {/* Profile picture + name */}
@@ -76,56 +78,56 @@ export default function AdminProfile() {
             {profilePic && <p style={{ fontSize: 12, color: 'var(--primary)', marginTop: 6 }}>{profilePic.name}</p>}
           </div>
 
-          <h4 style={{ marginBottom: 12 }}>Name & Email</h4>
+          <h4 style={{ marginBottom: 12 }}>{t('nameAndEmail')}</h4>
           <form onSubmit={handleNameSave}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="form-group">
-                <label>First Name</label>
+                <label>{t('firstName')}</label>
                 <input className="form-control" value={nameForm.first_name}
                   onChange={e => setNameForm({ ...nameForm, first_name: e.target.value })} required />
               </div>
               <div className="form-group">
-                <label>Last Name</label>
+                <label>{t('lastName')}</label>
                 <input className="form-control" value={nameForm.last_name}
                   onChange={e => setNameForm({ ...nameForm, last_name: e.target.value })} required />
               </div>
             </div>
             <div className="form-group">
-              <label>Email</label>
+              <label>{t('email')}</label>
               <input className="form-control" type="email" value={nameForm.email}
                 onChange={e => setNameForm({ ...nameForm, email: e.target.value })} required />
             </div>
             <div className="form-group">
-              <label>Role</label>
-              <input className="form-control" value="Administrator" disabled
+              <label>{t('role')}</label>
+              <input className="form-control" value={t('administrator')} disabled
                 style={{ background: '#f8f9fa', color: 'var(--gray)' }} />
             </div>
             <button className="btn btn-block" type="submit" disabled={saving}>
-              <FaSave style={{ marginRight: 6 }} />{saving ? 'Saving...' : 'Update Profile'}
+              <FaSave style={{ marginRight: 6 }} />{saving ? t('saving') : t('updateProfile')}
             </button>
           </form>
         </div>
 
         {/* Change password */}
         <div className="card">
-          <h4 style={{ marginBottom: 15 }}><FaLock style={{ marginRight: 6, color: 'var(--primary)' }} />Change Password</h4>
+          <h4 style={{ marginBottom: 15 }}><FaLock style={{ marginRight: 6, color: 'var(--primary)' }} />{t('changePassword')}</h4>
           <form onSubmit={handlePassword}>
             <div className="form-group">
-              <label>Current Password</label>
+              <label>{t('currentPassword')}</label>
               <input className="form-control" type="password" value={pwForm.currentPassword}
                 onChange={e => setPwForm({ ...pwForm, currentPassword: e.target.value })} required />
             </div>
             <div className="form-group">
-              <label>New Password</label>
+              <label>{t('newPassword')}</label>
               <input className="form-control" type="password" value={pwForm.newPassword}
                 onChange={e => setPwForm({ ...pwForm, newPassword: e.target.value })} required />
             </div>
             <div className="form-group">
-              <label>Confirm New Password</label>
+              <label>{t('confirmNewPassword')}</label>
               <input className="form-control" type="password" value={pwForm.confirmPassword}
                 onChange={e => setPwForm({ ...pwForm, confirmPassword: e.target.value })} required />
             </div>
-            <button className="btn btn-block btn-success" type="submit">Change Password</button>
+            <button className="btn btn-block btn-success" type="submit">{t('changePassword')}</button>
           </form>
         </div>
 

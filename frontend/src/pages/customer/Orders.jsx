@@ -1,11 +1,13 @@
 ﻿import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { FaClipboardList } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 
 export default function Orders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/orders').then(r => {
@@ -22,17 +24,17 @@ export default function Orders() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaClipboardList style={{ marginRight: 8, color: 'var(--primary)' }} />My Orders</h2>
+      <h2 style={{ marginBottom: 20 }}><FaClipboardList style={{ marginRight: 8, color: 'var(--primary)' }} />{t('myOrders')}</h2>
       <div className="card">
-        {loading ? <p>Loading...</p> : orders.length === 0 ? (
+        {loading ? <p>{t('loading')}</p> : orders.length === 0 ? (
           <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>
-            No orders yet. <Link to="/products" style={{ color: 'var(--primary)' }}>Start shopping!</Link>
+            {t('noOrders')} <Link to="/products" style={{ color: 'var(--primary)' }}>{t('startShopping')}</Link>
           </p>
         ) : (
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th></tr>
+                <tr><th>{t('orderNumber')}</th><th>{t('date')}</th><th>{t('items')}</th><th>{t('total')}</th><th>{t('status')}</th><th>{t('action')}</th></tr>
               </thead>
               <tbody>
                 {orders.map(o => (
@@ -42,7 +44,7 @@ export default function Orders() {
                     <td>{o.item_count || '-'}</td>
                     <td>ETB {parseFloat(o.total_amount).toFixed(2)}</td>
                     <td><span className={statusClass(o.status)}>{o.status}</span></td>
-                    <td><Link to={`/orders/${o.id}`} style={{ color: 'var(--primary)', fontSize: 14 }}>View</Link></td>
+                    <td><Link to={`/orders/${o.id}`} style={{ color: 'var(--primary)', fontSize: 14 }}>{t('view')}</Link></td>
                   </tr>
                 ))}
               </tbody>

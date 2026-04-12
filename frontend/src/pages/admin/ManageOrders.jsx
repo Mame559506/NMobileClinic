@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { FaClipboardCheck, FaTrash } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -8,6 +9,7 @@ const STATUSES = ['pending', 'processing', 'shipped', 'delivered', 'cancelled']
 export default function ManageOrders() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/admin/orders').then(r => {
@@ -41,18 +43,18 @@ export default function ManageOrders() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaClipboardCheck style={{ marginRight: 8, color: 'var(--primary)' }} />Orders Management</h2>
+      <h2 style={{ marginBottom: 20 }}><FaClipboardCheck style={{ marginRight: 8, color: 'var(--primary)' }} />{t('ordersManagement')}</h2>
       <div className="table-container">
         <div className="table-responsive">
           <table className="data-table">
             <thead>
-              <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Update Status</th><th>Delete</th></tr>
+              <tr><th>{t('orderNumber')}</th><th>{t('customer')}</th><th>{t('total')}</th><th>{t('status')}</th><th>{t('date')}</th><th>{t('updateStatus')}</th><th>{t('delete')}</th></tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>Loading...</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20 }}>{t('loading')}</td></tr>
               ) : orders.length === 0 ? (
-                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: 'var(--gray)' }}>No orders found.</td></tr>
+                <tr><td colSpan="7" style={{ textAlign: 'center', padding: 20, color: 'var(--gray)' }}>{t('noOrdersFound')}</td></tr>
               ) : orders.map(o => (
                 <tr key={o.id}>
                   <td>{o.order_number || `#${o.id}`}</td>

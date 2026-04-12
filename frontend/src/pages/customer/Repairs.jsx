@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { FaTools, FaPlus } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -8,6 +9,7 @@ export default function Repairs() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ device_type: '', issue_description: '' })
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/repairs').then(r => {
@@ -23,7 +25,7 @@ export default function Repairs() {
         setRepairs(prev => [r.data.repair, ...prev])
         setForm({ device_type: '', issue_description: '' })
         setShowForm(false)
-        toast.success('Repair request submitted!')
+        toast.success(t('repairSubmitted'))
       }
     } catch { toast.error('Failed to submit repair request') }
   }
@@ -38,29 +40,29 @@ export default function Repairs() {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2><FaTools style={{ marginRight: 8, color: 'var(--primary)' }} />Repair Services</h2>
+        <h2><FaTools style={{ marginRight: 8, color: 'var(--primary)' }} />{t('repairServices')}</h2>
         <button className="btn" onClick={() => setShowForm(!showForm)}>
-          <FaPlus style={{ marginRight: 6 }} /> New Request
+          <FaPlus style={{ marginRight: 6 }} /> {t('newRequest')}
         </button>
       </div>
 
       {showForm && (
         <div className="card" style={{ marginBottom: 20 }}>
-          <h3 style={{ marginBottom: 15 }}>Submit Repair Request</h3>
+          <h3 style={{ marginBottom: 15 }}>{t('submitRepairRequest')}</h3>
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Device Type</label>
+              <label>{t('deviceType')}</label>
               <input className="form-control" placeholder="e.g. iPhone 13 Pro, Samsung Galaxy S22"
                 value={form.device_type} onChange={e => setForm({ ...form, device_type: e.target.value })} required />
             </div>
             <div className="form-group">
-              <label>Issue Description</label>
-              <textarea className="form-control" rows="3" placeholder="Describe the issue..."
+              <label>{t('issueDescription')}</label>
+              <textarea className="form-control" rows="3" placeholder={t('issueDescription')}
                 value={form.issue_description} onChange={e => setForm({ ...form, issue_description: e.target.value })} required />
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn btn-success" type="submit">Submit Request</button>
-              <button className="btn btn-outline" type="button" onClick={() => setShowForm(false)}>Cancel</button>
+              <button className="btn btn-success" type="submit">{t('submitRequest')}</button>
+              <button className="btn btn-outline" type="button" onClick={() => setShowForm(false)}>{t('cancel')}</button>
             </div>
           </form>
         </div>
@@ -68,15 +70,15 @@ export default function Repairs() {
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">My Repair Requests</h3>
+          <h3 className="card-title">{t('myRepairRequests')}</h3>
         </div>
-        {loading ? <p>Loading...</p> : repairs.length === 0 ? (
-          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>No repair requests yet.</p>
+        {loading ? <p>{t('loading')}</p> : repairs.length === 0 ? (
+          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>{t('noRepairsYet')}</p>
         ) : (
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>Device</th><th>Issue</th><th>Status</th><th>Est. Cost</th><th>Date</th></tr>
+                <tr><th>ID</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('date')}</th></tr>
               </thead>
               <tbody>
                 {repairs.map(r => (

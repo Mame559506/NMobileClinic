@@ -1,5 +1,6 @@
 ﻿import { useState, useEffect } from 'react'
 import { FaTools, FaHandPointer, FaSave } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -10,6 +11,7 @@ export default function TechRepairs() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({ status: '', notes: '', estimated_cost: '' })
+  const { t } = useLanguage()
 
   useEffect(() => {
     fetchRepairs()
@@ -59,18 +61,17 @@ export default function TechRepairs() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaTools style={{ marginRight: 8, color: 'var(--primary)' }} />Repair Assignments</h2>
+      <h2 style={{ marginBottom: 20 }}><FaTools style={{ marginRight: 8, color: 'var(--primary)' }} />{t('repairAssignments')}</h2>
 
-      {/* Unassigned repairs */}
       {unassigned.length > 0 && (
         <div className="card" style={{ marginBottom: 20 }}>
           <div className="card-header">
-            <h3 className="card-title">Available Repairs ({unassigned.length})</h3>
+            <h3 className="card-title">{t('availableRepairs')} ({unassigned.length})</h3>
           </div>
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Date</th><th>Action</th></tr>
+                <tr><th>ID</th><th>{t('customer')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('date')}</th><th>{t('action')}</th></tr>
               </thead>
               <tbody>
                 {unassigned.map(r => (
@@ -82,7 +83,7 @@ export default function TechRepairs() {
                     <td>{new Date(r.created_at).toLocaleDateString()}</td>
                     <td>
                       <button className="btn btn-success" style={{ padding: '6px 12px', fontSize: 13 }} onClick={() => claim(r.id)}>
-                        <FaHandPointer style={{ marginRight: 4 }} /> Claim
+                        <FaHandPointer style={{ marginRight: 4 }} /> {t('claim')}
                       </button>
                     </td>
                   </tr>
@@ -93,18 +94,17 @@ export default function TechRepairs() {
         </div>
       )}
 
-      {/* My assigned repairs */}
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">My Repairs ({myRepairs.length})</h3>
+          <h3 className="card-title">{t('myRepairs')} ({myRepairs.length})</h3>
         </div>
-        {loading ? <p>Loading...</p> : myRepairs.length === 0 ? (
-          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>No repairs assigned yet. Claim one above.</p>
+        {loading ? <p>{t('loading')}</p> : myRepairs.length === 0 ? (
+          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>{t('noRepairsAssigned')}</p>
         ) : (
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>Customer</th><th>Device</th><th>Issue</th><th>Status</th><th>Est. Cost</th><th>Notes</th><th>Action</th></tr>
+                <tr><th>ID</th><th>{t('customer')}</th><th>{t('deviceType')}</th><th>{t('issueDescription')}</th><th>{t('status')}</th><th>{t('estimatedCost')}</th><th>{t('notes')}</th><th>{t('action')}</th></tr>
               </thead>
               <tbody>
                 {myRepairs.map(r => (

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaUniversity, FaSave, FaToggleOn, FaToggleOff } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
 
@@ -8,6 +9,7 @@ export default function BankSettings() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(null)
   const [editForm, setEditForm] = useState({})
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/admin/bank-settings').then(r => {
@@ -45,25 +47,25 @@ export default function BankSettings() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaUniversity style={{ marginRight: 8, color: 'var(--primary)' }} />Bank Settings</h2>
-      <p style={{ color: 'var(--gray)', marginBottom: 20 }}>Manage bank accounts shown to customers during checkout.</p>
+      <h2 style={{ marginBottom: 20 }}><FaUniversity style={{ marginRight: 8, color: 'var(--primary)' }} />{t('bankSettings')}</h2>
+      <p style={{ color: 'var(--gray)', marginBottom: 20 }}>{t('bankSettingsDesc')}</p>
 
-      {loading ? <p>Loading...</p> : banks.map(bank => (
+      {loading ? <p>{t('loading')}</p> : banks.map(bank => (
         <div className="card" key={bank.id} style={{ marginBottom: 15 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
               {editing === bank.id ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
                   <div className="form-group">
-                    <label>Bank Name</label>
+                    <label>{t('bankName')}</label>
                     <input className="form-control" value={editForm.bank_name} onChange={set('bank_name')} />
                   </div>
                   <div className="form-group">
-                    <label>Account Name</label>
+                    <label>{t('accountName')}</label>
                     <input className="form-control" value={editForm.account_name} onChange={set('account_name')} />
                   </div>
                   <div className="form-group">
-                    <label>Account Number</label>
+                    <label>{t('accountNumber')}</label>
                     <input className="form-control" value={editForm.account_number} onChange={set('account_number')} />
                   </div>
                 </div>
@@ -72,11 +74,11 @@ export default function BankSettings() {
                   <h3 style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
                     {bank.bank_name}
                     <span className={`status-badge ${bank.is_active ? 'status-completed' : 'status-cancelled'}`}>
-                      {bank.is_active ? 'Active' : 'Inactive'}
+                      {bank.is_active ? t('active') : t('inactive')}
                     </span>
                   </h3>
-                  <p style={{ color: 'var(--gray)', fontSize: 14 }}>Account Number: <strong>{bank.account_number}</strong></p>
-                  <p style={{ color: 'var(--gray)', fontSize: 14 }}>Account Name: <strong>{bank.account_name}</strong></p>
+                  <p style={{ color: 'var(--gray)', fontSize: 14 }}>{t('accountNumber')}: <strong>{bank.account_number}</strong></p>
+                  <p style={{ color: 'var(--gray)', fontSize: 14 }}>{t('accountName')}: <strong>{bank.account_name}</strong></p>
                 </div>
               )}
             </div>
@@ -84,13 +86,13 @@ export default function BankSettings() {
               {editing === bank.id ? (
                 <>
                   <button className="btn btn-success" style={{ padding: '8px 16px' }} onClick={() => saveEdit(bank.id)}>
-                    <FaSave style={{ marginRight: 6 }} />Save
+                    <FaSave style={{ marginRight: 6 }} />{t('save')}
                   </button>
-                  <button className="btn btn-outline" style={{ padding: '8px 16px' }} onClick={() => setEditing(null)}>Cancel</button>
+                  <button className="btn btn-outline" style={{ padding: '8px 16px' }} onClick={() => setEditing(null)}>{t('cancel')}</button>
                 </>
               ) : (
                 <>
-                  <button className="btn" style={{ padding: '8px 16px' }} onClick={() => startEdit(bank)}>Edit</button>
+                  <button className="btn" style={{ padding: '8px 16px' }} onClick={() => startEdit(bank)}>{t('edit')}</button>
                   <button className="btn btn-outline" style={{ padding: '8px 16px' }} onClick={() => toggleActive(bank)}>
                     {bank.is_active ? <FaToggleOn style={{ color: '#28a745' }} /> : <FaToggleOff style={{ color: 'var(--gray)' }} />}
                   </button>

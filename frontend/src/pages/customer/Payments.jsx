@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaCreditCard, FaCheckCircle, FaClock, FaTimesCircle } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 
 const bankLabel = (m) => {
@@ -10,6 +11,7 @@ const bankLabel = (m) => {
 export default function Payments() {
   const [payments, setPayments] = useState([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     api.get('/payments').then(r => {
@@ -31,16 +33,16 @@ export default function Payments() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaCreditCard style={{ marginRight: 8, color: 'var(--primary)' }} />My Payments</h2>
+      <h2 style={{ marginBottom: 20 }}><FaCreditCard style={{ marginRight: 8, color: 'var(--primary)' }} />{t('myPayments')}</h2>
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Payment History</h3></div>
-        {loading ? <p>Loading...</p> : payments.length === 0 ? (
-          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>No payments yet.</p>
+        <div className="card-header"><h3 className="card-title">{t('paymentHistory')}</h3></div>
+        {loading ? <p>{t('loading')}</p> : payments.length === 0 ? (
+          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>{t('noPaymentsYet')}</p>
         ) : (
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>Order</th><th>Amount</th><th>Bank</th><th>Transaction ID</th><th>Status</th><th>Date</th></tr>
+                <tr><th>{t('order')}</th><th>{t('amount')}</th><th>{t('bank')}</th><th>{t('transactionId')}</th><th>{t('status')}</th><th>{t('date')}</th></tr>
               </thead>
               <tbody>
                 {payments.map(p => (
@@ -51,7 +53,7 @@ export default function Payments() {
                     <td>
                       {p.transaction_id
                         ? <code style={{ background: '#f0f0f0', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>{p.transaction_id}</code>
-                        : <span style={{ color: 'var(--warning)', fontSize: 12 }}>Awaiting submission</span>}
+                        : <span style={{ color: 'var(--warning)', fontSize: 12 }}>{t('awaitingSubmission')}</span>}
                     </td>
                     <td>
                       <span className={statusClass(p.status)}>

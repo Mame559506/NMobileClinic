@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FaSearch, FaFilter, FaShoppingCart } from 'react-icons/fa'
 import { useCart } from '../../context/CartContext'
+import { useLanguage } from '../../context/LanguageContext'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import api from '../../services/api'
 import toast from 'react-hot-toast'
@@ -14,6 +15,7 @@ export default function Products() {
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const { addItem } = useCart()
+  const { t } = useLanguage()
 
   useEffect(() => {
     Promise.all([
@@ -32,9 +34,9 @@ export default function Products() {
   })
 
   const stockLabel = (qty) => {
-    if (qty === 0) return <span className="out-of-stock">Out of Stock</span>
-    if (qty <= 10) return <span className="low-stock">Low Stock ({qty})</span>
-    return <span className="in-stock">In Stock</span>
+    if (qty === 0) return <span className="out-of-stock">{t('outOfStock')}</span>
+    if (qty <= 10) return <span className="low-stock">{t('lowStock')} ({qty})</span>
+    return <span className="in-stock">{t('inStock')}</span>
   }
 
   if (loading) return <LoadingSpinner />
@@ -42,7 +44,7 @@ export default function Products() {
   return (
     <div className="page">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2>Products</h2>
+        <h2>{t('products')}</h2>
       </div>
 
       {/* Filters */}
@@ -50,12 +52,12 @@ export default function Products() {
         <div style={{ display: 'flex', gap: 15, flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: 200, position: 'relative' }}>
             <FaSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--gray)' }} />
-            <input className="form-control" style={{ paddingLeft: 36 }} placeholder="Search products..."
+            <input className="form-control" style={{ paddingLeft: 36 }} placeholder={t('searchProducts')}
               value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <select className="form-control" style={{ width: 200 }}
             value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}>
-            <option value="">All Categories</option>
+            <option value="">{t('allCategories')}</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
@@ -63,7 +65,7 @@ export default function Products() {
 
       {filtered.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: 40 }}>
-          <p style={{ color: 'var(--gray)' }}>No products found.</p>
+          <p style={{ color: 'var(--gray)' }}>{t('noProductsFound')}</p>
         </div>
       ) : (
         <div className="products-grid">
@@ -84,7 +86,7 @@ export default function Products() {
                   <button className="btn" style={{ flex: 1, padding: '10px' }}
                     disabled={p.stock_quantity === 0}
                     onClick={() => addItem(p.id, 1)}>
-                    <FaShoppingCart style={{ marginRight: 6 }} /> Add to Cart
+                    <FaShoppingCart style={{ marginRight: 6 }} /> {t('addToCart')}
                   </button>
                 </div>
               </div>

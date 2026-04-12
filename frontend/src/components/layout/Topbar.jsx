@@ -1,9 +1,11 @@
-import { FaBars, FaMobileAlt, FaSignOutAlt } from 'react-icons/fa'
+import { FaBars, FaMobileAlt, FaSignOutAlt, FaGlobe } from 'react-icons/fa'
 import { useAuth } from '../../context/AuthContext'
+import { useLanguage } from '../../context/LanguageContext'
 import { useNavigate } from 'react-router-dom'
 
 const Topbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth()
+  const { lang, switchLang, t } = useLanguage()
   const navigate = useNavigate()
   const initials = user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() : 'U'
 
@@ -25,6 +27,26 @@ const Topbar = ({ onMenuClick }) => {
         </h2>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        {/* Language switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f5f5f5', borderRadius: 8, padding: '4px 8px' }}>
+          <FaGlobe style={{ color: 'var(--primary)', fontSize: 13 }} />
+          {[
+            { code: 'en', label: 'EN' },
+            { code: 'om', label: 'OM' },
+            { code: 'am', label: 'አማ' },
+          ].map(({ code, label }) => (
+            <button key={code} onClick={() => switchLang(code)}
+              style={{
+                background: lang === code ? 'var(--primary)' : 'transparent',
+                color: lang === code ? 'white' : 'var(--dark)',
+                border: 'none', borderRadius: 5, padding: '3px 8px',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+              }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div onClick={() => navigate(profilePath)}
           style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
           {user?.profileImage
@@ -34,15 +56,15 @@ const Topbar = ({ onMenuClick }) => {
           <div className="topbar-user-name">
             <div style={{ fontWeight: 600, fontSize: 14 }}>{user?.firstName} {user?.lastName}</div>
             <div style={{ fontSize: 12, color: 'var(--gray)' }}>
-              {user?.role === 'admin' ? 'Administrator' : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? 'Technician' : 'Customer'}
+              {user?.role === 'admin' ? t('administrator') : user?.role === 'manager' ? 'Manager' : user?.role === 'technician' ? t('technician') : t('customer')}
             </div>
           </div>
         </div>
         <button onClick={logout}
-          title="Logout"
+          title={t('logout')}
           style={{ background: 'none', border: '1px solid #ddd', borderRadius: 6, padding: '6px 10px', cursor: 'pointer', color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 5, fontSize: 13 }}>
           <FaSignOutAlt />
-          <span className="topbar-user-name">Logout</span>
+          <span className="topbar-user-name">{t('logout')}</span>
         </button>
       </div>
     </div>

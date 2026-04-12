@@ -1,11 +1,13 @@
 ﻿import { Link, useNavigate } from 'react-router-dom'
 import { FaTrash, FaPlus, FaMinus, FaArrowLeft, FaShoppingCart } from 'react-icons/fa'
 import { useCart } from '../../context/CartContext'
+import { useLanguage } from '../../context/LanguageContext'
 import LoadingSpinner from '../../components/common/LoadingSpinner'
 import toast from 'react-hot-toast'
 
 export default function Cart() {
   const { cart, loading, updateQuantity, removeItem, clearCart } = useCart()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const items = cart?.items || []
   const total = cart?.total || 0
@@ -17,9 +19,9 @@ export default function Cart() {
       <div className="page">
         <div className="card" style={{ textAlign: 'center', padding: 60 }}>
           <FaShoppingCart style={{ fontSize: 64, color: '#ddd', marginBottom: 20 }} />
-          <h2 style={{ marginBottom: 10 }}>Your cart is empty</h2>
-          <p style={{ color: 'var(--gray)', marginBottom: 20 }}>Add some products to get started</p>
-          <Link to="/products" className="btn"><FaArrowLeft style={{ marginRight: 8 }} />Browse Products</Link>
+          <h2 style={{ marginBottom: 10 }}>{t('cartEmpty')}</h2>
+          <p style={{ color: 'var(--gray)', marginBottom: 20 }}>{t('addProductsToStart')}</p>
+          <Link to="/products" className="btn"><FaArrowLeft style={{ marginRight: 8 }} />{t('browseProducts')}</Link>
         </div>
       </div>
     )
@@ -27,14 +29,14 @@ export default function Cart() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}><FaShoppingCart style={{ marginRight: 8, color: 'var(--primary)' }} />Shopping Cart</h2>
+      <h2 style={{ marginBottom: 20 }}><FaShoppingCart style={{ marginRight: 8, color: 'var(--primary)' }} />{t('cart')}</h2>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, alignItems: 'start' }}>
         <div className="card" style={{ padding: 0 }}>
           <div style={{ padding: '20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3>{items.length} item{items.length !== 1 ? 's' : ''}</h3>
-            <button onClick={() => { if (window.confirm('Clear cart?')) clearCart() }}
+            <h3>{items.length} {items.length !== 1 ? t('items') : t('item')}</h3>
+            <button onClick={() => { if (window.confirm(t('clearCart') + '?')) clearCart() }}
               style={{ background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <FaTrash /> Clear Cart
+              <FaTrash /> {t('clearCart')}
             </button>
           </div>
           {items.map(item => (
@@ -80,27 +82,27 @@ export default function Cart() {
           ))}
           <div style={{ padding: 15 }}>
             <Link to="/products" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
-              <FaArrowLeft /> Continue Shopping
+              <FaArrowLeft /> {t('continueShopping')}
             </Link>
           </div>
         </div>
 
         <div className="card">
-          <h3 style={{ marginBottom: 20 }}>Order Summary</h3>
+          <h3 style={{ marginBottom: 20 }}>{t('orderSummary')}</h3>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ color: 'var(--gray)' }}>Subtotal</span>
+            <span style={{ color: 'var(--gray)' }}>{t('subtotal')}</span>
             <span>ETB {parseFloat(total).toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-            <span style={{ color: 'var(--gray)' }}>Shipping</span>
-            <span style={{ color: '#28a745' }}>Free</span>
+            <span style={{ color: 'var(--gray)' }}>{t('shipping')}</span>
+            <span style={{ color: '#28a745' }}>{t('free')}</span>
           </div>
           <div style={{ borderTop: '1px solid #eee', paddingTop: 15, marginTop: 10, display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: 18 }}>
-            <span>Total</span>
+            <span>{t('total')}</span>
             <span style={{ color: 'var(--primary)' }}>ETB {parseFloat(total).toFixed(2)}</span>
           </div>
           <button className="btn btn-block btn-success" style={{ marginTop: 20 }} onClick={() => navigate('/checkout')}>
-            Proceed to Checkout
+            {t('proceedToCheckout')}
           </button>
         </div>
       </div>

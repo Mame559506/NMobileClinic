@@ -1,11 +1,13 @@
 ﻿import { useState, useEffect } from 'react'
 import { FaUsers, FaShoppingBag, FaMoneyBillWave, FaTools } from 'react-icons/fa'
+import { useLanguage } from '../../context/LanguageContext'
 import api from '../../services/api'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ users: 0, orders: 0, revenue: 0, repairs: 0 })
   const [recentOrders, setRecentOrders] = useState([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     Promise.all([
@@ -18,10 +20,10 @@ export default function AdminDashboard() {
   }, [])
 
   const statCards = [
-    { label: 'Total Users', value: stats.users || 0, icon: <FaUsers />, color: 'primary' },
-    { label: 'Total Orders', value: stats.orders || 0, icon: <FaShoppingBag />, color: 'success' },
-    { label: 'Revenue (ETB)', value: `${parseFloat(stats.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'warning' },
-    { label: 'Repair Requests', value: stats.repairs || 0, icon: <FaTools />, color: 'danger' },
+    { label: t('totalUsers'), value: stats.users || 0, icon: <FaUsers />, color: 'primary' },
+    { label: t('totalOrders'), value: stats.orders || 0, icon: <FaShoppingBag />, color: 'success' },
+    { label: `${t('totalRevenue')} (ETB)`, value: `${parseFloat(stats.revenue || 0).toFixed(2)}`, icon: <FaMoneyBillWave />, color: 'warning' },
+    { label: t('repairRequests'), value: stats.repairs || 0, icon: <FaTools />, color: 'danger' },
   ]
 
   const statusClass = (s) => {
@@ -33,7 +35,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="page">
-      <h2 style={{ marginBottom: 20 }}>Admin Dashboard</h2>
+      <h2 style={{ marginBottom: 20 }}>{t('adminDashboard')}</h2>
       <div className="stats-grid">
         {statCards.map((s, i) => (
           <div className="stat-card" key={i}>
@@ -44,14 +46,14 @@ export default function AdminDashboard() {
       </div>
 
       <div className="card">
-        <div className="card-header"><h3 className="card-title">Recent Orders</h3></div>
-        {loading ? <p>Loading...</p> : recentOrders.length === 0 ? (
-          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>No orders yet.</p>
+        <div className="card-header"><h3 className="card-title">{t('recentOrders')}</h3></div>
+        {loading ? <p>{t('loading')}</p> : recentOrders.length === 0 ? (
+          <p style={{ color: 'var(--gray)', textAlign: 'center', padding: 20 }}>{t('noOrdersYet')}</p>
         ) : (
           <div className="table-responsive">
             <table className="data-table">
               <thead>
-                <tr><th>Order #</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th></tr>
+                <tr><th>{t('orderNumber')}</th><th>{t('customer')}</th><th>{t('total')}</th><th>{t('status')}</th><th>{t('date')}</th></tr>
               </thead>
               <tbody>
                 {recentOrders.map(o => (
@@ -71,4 +73,3 @@ export default function AdminDashboard() {
     </div>
   )
 }
-
